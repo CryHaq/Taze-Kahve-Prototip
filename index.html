@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaphi Kahve — Çekirdekten Fincana</title>
+  <meta name="description" content="Kaphi Kahve — Dünyanın en seçkin kahve bölgelerinden çekirdekten fincana yolculuk. Premium kahve ithalat ve üretim.">
+  <meta property="og:title" content="Kaphi Kahve — Çekirdekten Fincana">
+  <meta property="og:description" content="Dünyanın en seçkin kahve bölgelerinden çekirdekten fincana yolculuk.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #060403;
+      --bg-dark: #0c0906;
+      --bg-surface: #151009;
+      --bg-elevated: #1e160d;
+      --gold: #c8956c;
+      --gold-light: #dbb896;
+      --gold-dim: #8a6244;
+      --cream: #f5efe6;
+      --cream-dim: #b8a994;
+      --brown-rich: #3c2415;
+      --green-bean: #6b8f4e;
+      --green-dark: #3d5a2a;
+      --roast-light: #8B6914;
+      --roast-medium: #5C3A1E;
+      --roast-dark: #2E1A0E;
+      --steam: rgba(245, 239, 230, 0.06);
+      --text-primary: #f5efe6;
+      --text-muted: #7a6b5a;
+      --shadow-color: 26, 18, 11;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
+      --space-xl: 48px; --space-2xl: 80px; --space-3xl: 120px;
+    }
+
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+
+    /* ══════ NOISE ══════ */
+    .noise {
+      position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* ══════ LOADER ══════ */
+    #loader {
+      position: fixed; inset: 0; z-index: 10000; background: var(--bg-deep);
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+    }
+    #loader.done { opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
+    .loader-logo { font-family: 'Instrument Serif', serif; font-size: clamp(2rem,5vw,3.5rem); color: var(--gold); opacity: 0; }
+    .loader-sub { font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cream-dim); margin-top: var(--space-md); opacity: 0; }
+    .loader-progress { width: 180px; height: 1px; background: var(--bg-elevated); margin-top: var(--space-xl); overflow: hidden; }
+    .loader-fill { width: 0; height: 100%; background: var(--gold); }
+
+    /* ══════ NAV ══════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: var(--space-lg) var(--space-xl);
+      display: flex; align-items: center; justify-content: space-between;
+      mix-blend-mode: difference;
+    }
+    .nav-logo { font-family: 'Instrument Serif', serif; font-size: 1.5rem; color: var(--cream); text-decoration: none; }
+    .nav-logo em { color: var(--gold); font-style: normal; }
+    .nav-right { display: flex; align-items: center; gap: var(--space-xl); }
+    .nav-right a { color: var(--cream-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
+    .nav-right a:hover { color: var(--cream); }
+    .nav-right a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px; background: var(--gold); z-index: 101;
+      width: 0%; transition: width 0.1s linear;
+    }
+
+    /* ══════ SCROLL INDICATOR ══════ */
+    .scroll-hint {
+      position: fixed; bottom: var(--space-xl); left: 50%; transform: translateX(-50%);
+      z-index: 99; display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);
+      color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+      transition: opacity 0.5s ease;
+    }
+    .scroll-hint.hide { opacity: 0; pointer-events: none; }
+    .scroll-arrow {
+      width: 20px; height: 20px; border-right: 1px solid var(--gold-dim); border-bottom: 1px solid var(--gold-dim);
+      transform: rotate(45deg); animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { transform: rotate(45deg) translate(0,0); opacity:1; } 50% { transform: rotate(45deg) translate(4px,4px); opacity:0.4; } }
+
+    /* ══════ SCENE PANELS (pinned) ══════ */
+    .scene {
+      position: relative; width: 100%; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ══════ SCENE 1: HERO ══════ */
+    #scene-hero {
+      height: 100vh;
+      background: var(--bg-deep);
+    }
+
+    .hero-bg-gradient {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 50%, rgba(200,149,108,0.04) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 75% 30%, rgba(107,143,78,0.03) 0%, transparent 60%);
+    }
+
+    #hero-canvas { position: absolute; inset: 0; z-index: 0; }
+
+    .hero-center {
+      position: relative; z-index: 2; text-align: center;
+      padding: 0 var(--space-lg);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: var(--space-lg); opacity: 0;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 9vw, 8rem); color: var(--cream);
+      margin-bottom: var(--space-lg);
+    }
+    .hero-title em { font-style: italic; color: var(--gold); }
+    .hero-title .word { display: inline-block; overflow: hidden; }
+    .hero-title .word span { display: inline-block; transform: translateY(110%); }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem); color: var(--cream-dim);
+      max-width: 500px; margin: 0 auto; opacity: 0;
+    }
+
+    /* ══════ SCENE 2: ORIGIN (Pinned Horizontal) ══════ */
+    #scene-origin { height: 300vh; }
+    .origin-pin {
+      position: relative; width: 100%; height: 100vh;
+      overflow: hidden; background: var(--bg-deep);
+    }
+    .origin-track {
+      display: flex; width: 400vw; height: 100%;
+      will-change: transform;
+    }
+    .origin-panel {
+      width: 100vw; height: 100%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    .origin-panel-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl);
+      max-width: 1200px; padding: 0 var(--space-xl); align-items: center;
+      width: 100%;
+    }
+
+    .origin-visual {
+      position: relative; aspect-ratio: 3/4; overflow: hidden;
+    }
+    .origin-visual img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .origin-visual::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--bg-deep) 0%, transparent 40%);
+    }
+
+    .origin-text h2 {
+      font-size: clamp(2rem, 4vw, 3.5rem); color: var(--cream); margin-bottom: var(--space-lg);
+    }
+    .origin-text h2 em { font-style: italic; color: var(--gold); }
+    .origin-text p { color: var(--cream-dim); font-size: 1.05rem; margin-bottom: var(--space-md); }
+
+    .origin-label {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: var(--space-lg); display: flex; align-items: center; gap: var(--space-sm);
+    }
+    .origin-label::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
+
+    .origin-num {
+      font-family: 'Instrument Serif', serif; font-size: 8rem; color: rgba(200,149,108,0.06);
+      position: absolute; top: var(--space-xl); right: var(--space-xl); line-height: 1;
+    }
+
+    @media (max-width: 768px) {
+      .origin-panel-inner { grid-template-columns: 1fr; gap: var(--space-lg); padding: 0 var(--space-lg); }
+      .origin-visual { aspect-ratio: 16/10; max-height: 40vh; }
+      .origin-num { font-size: 4rem; }
+    }
+
+    /* ══════ SCENE 3: KAVURMA (Scale / Color Transform) ══════ */
+    #scene-roast { height: 400vh; }
+    .roast-pin {
+      position: relative; width: 100%; height: 100vh; overflow: hidden;
+      background: var(--bg-deep);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .roast-bean-wrap {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      z-index: 1;
+    }
+
+    .roast-bean {
+      width: clamp(200px, 30vw, 380px); height: auto; position: relative;
+      filter: drop-shadow(0 20px 60px rgba(200,149,108,0.2));
+      transition: filter 0.3s;
+    }
+
+    .roast-glow {
+      position: absolute; width: 500px; height: 500px;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      border-radius: 50%; opacity: 0;
+      background: radial-gradient(circle, rgba(200,100,30,0.15), transparent 70%);
+      z-index: 0;
+    }
+
+    .roast-text-stages {
+      position: absolute; z-index: 3; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      pointer-events: none;
+    }
+
+    .roast-stage {
+      position: absolute; text-align: center; opacity: 0;
+      width: 80%; max-width: 600px;
+    }
+
+    .roast-stage h2 {
+      font-size: clamp(2rem, 5vw, 4rem); color: var(--cream); margin-bottom: var(--space-md);
+    }
+    .roast-stage h2 em { font-style: italic; color: var(--gold); }
+    .roast-stage p { color: var(--cream-dim); font-size: 1.05rem; max-width: 450px; margin: 0 auto; }
+
+    .temp-display {
+      position: absolute; top: var(--space-xl); right: var(--space-xl); z-index: 5;
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem); color: var(--gold); opacity: 0.15;
+      letter-spacing: -0.02em;
+    }
+
+    .roast-particles { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+    /* ══════ SCENE 4: ÖĞÜTME + FİNCAN ══════ */
+    #scene-grind { height: 300vh; }
+    .grind-pin {
+      position: relative; width: 100%; height: 100vh; overflow: hidden;
+      background: var(--bg-deep);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .grind-content {
+      position: relative; z-index: 2; text-align: center;
+      padding: 0 var(--space-lg);
+    }
+
+    .grind-content h2 {
+      font-size: clamp(2.5rem, 6vw, 5rem); color: var(--cream); margin-bottom: var(--space-lg);
+    }
+    .grind-content h2 em { font-style: italic; color: var(--gold); }
+    .grind-content p { color: var(--cream-dim); font-size: 1.1rem; max-width: 500px; margin: 0 auto var(--space-xl); }
+
+    /* Cup SVG */
+    .cup-wrap {
+      width: clamp(200px, 25vw, 320px); margin: 0 auto;
+      position: relative;
+    }
+
+    .cup-svg { width: 100%; height: auto; }
+
+    .steam-lines {
+      position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 60px;
+    }
+    .steam-line {
+      position: absolute; width: 2px; background: var(--cream);
+      border-radius: 1px; opacity: 0;
+      bottom: 0;
+    }
+    .steam-line:nth-child(1) { left: 15px; height: 30px; }
+    .steam-line:nth-child(2) { left: 35px; height: 40px; }
+    .steam-line:nth-child(3) { left: 55px; height: 25px; }
+
+    /* ══════ SCENE 5: PRODUCTS ══════ */
+    #scene-products {
+      min-height: auto; padding: var(--space-3xl) var(--space-xl);
+      background: var(--bg-surface);
+    }
+
+    .products-inner {
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .products-header {
+      text-align: center; margin-bottom: var(--space-2xl);
+    }
+    .products-header h2 {
+      font-size: clamp(2.2rem, 4vw, 3.5rem); color: var(--cream); margin-bottom: var(--space-md);
+    }
+    .products-header h2 em { font-style: italic; color: var(--gold); }
+    .products-header p { color: var(--cream-dim); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: var(--space-lg); display: flex; align-items: center;
+      gap: var(--space-sm); justify-content: center;
+    }
+    .section-label::before, .section-label::after { content: ''; width: 24px; height: 1px; background: var(--gold-dim); }
+
+    .products-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .product-card {
+      background: var(--bg-elevated); border: 1px solid rgba(200,149,108,0.05);
+      overflow: hidden; position: relative;
+      transition: transform 0.5s var(--ease-spring), border-color 0.4s, box-shadow 0.4s;
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(200,149,108,0.15);
+      box-shadow: 0 8px 16px rgba(var(--shadow-color),0.15), 0 24px 48px rgba(var(--shadow-color),0.12);
+    }
+
+    .product-badge {
+      position: absolute; top: var(--space-md); left: var(--space-md); z-index: 2;
+      padding: 4px 12px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .badge-new { background: var(--gold); color: var(--bg-deep); }
+    .badge-best { background: #c0392b; color: #fff; }
+
+    .product-img-wrap {
+      position: relative; aspect-ratio: 1; overflow: hidden; background: var(--bg-surface);
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s var(--ease-out-expo);
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+    .product-img-wrap::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(30,22,13,0.5), transparent 40%);
+    }
+
+    .quick-add {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+      padding: var(--space-md); transform: translateY(100%);
+      transition: transform 0.4s var(--ease-spring);
+    }
+    .product-card:hover .quick-add { transform: translateY(0); }
+    .quick-add button {
+      width: 100%; padding: 12px; background: var(--gold); border: none;
+      color: var(--bg-deep); font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.3s, transform 0.2s var(--ease-spring);
+    }
+    .quick-add button:hover { background: var(--cream); }
+    .quick-add button:active { transform: scale(0.97); }
+    .quick-add button:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+
+    .product-info { padding: var(--space-lg); }
+    .product-cat { font-size: 0.7rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: var(--space-xs); }
+    .product-name { font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--cream); margin-bottom: var(--space-sm); }
+    .product-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-md); line-height: 1.6; }
+    .product-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--gold); }
+    .product-weight { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ══════ CTA ══════ */
+    .cta-section {
+      padding: var(--space-3xl) var(--space-xl); text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,149,108,0.06), transparent);
+    }
+    .cta-inner { position: relative; z-index: 1; max-width: 650px; margin: 0 auto; }
+    .cta-inner h2 { font-size: clamp(2.5rem, 5vw, 4rem); color: var(--cream); margin-bottom: var(--space-lg); }
+    .cta-inner h2 em { font-style: italic; color: var(--gold); }
+    .cta-inner p { color: var(--cream-dim); font-size: 1.1rem; margin-bottom: var(--space-xl); }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: var(--space-sm);
+      padding: 18px 48px; background: var(--gold); color: var(--bg-deep); border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      text-decoration: none; position: relative; overflow: hidden;
+      transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; inset: 0; background: var(--cream);
+      transform: translateX(-101%); transition: transform 0.4s var(--ease-out-expo);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(200,149,108,0.25);
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary:active { transform: translateY(-1px); }
+    .btn-primary:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    /* ══════ FOOTER ══════ */
+    footer {
+      padding: var(--space-2xl) var(--space-xl) var(--space-xl);
+      border-top: 1px solid rgba(200,149,108,0.06);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-xl);
+    }
+    .footer-brand p { color: var(--text-muted); font-size: 0.9rem; max-width: 280px; margin-top: var(--space-md); margin-bottom: var(--space-lg); }
+    .footer-social { display: flex; gap: var(--space-md); }
+    .footer-social a {
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(200,149,108,0.12); color: var(--cream-dim);
+      transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .footer-social a:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .footer-social a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .footer-col h4 {
+      font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream); margin-bottom: var(--space-lg);
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: var(--space-sm); }
+    .footer-col ul a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
+    .footer-col ul a:hover { color: var(--gold); }
+    .footer-col ul a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+    .footer-bottom {
+      max-width: 1200px; margin: var(--space-xl) auto 0; padding-top: var(--space-lg);
+      border-top: 1px solid rgba(200,149,108,0.06);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-md);
+    }
+    .footer-bottom p { font-size: 0.75rem; color: var(--text-muted); }
+    .footer-bottom a { color: var(--gold-dim); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    /* ══════ TOAST ══════ */
+    .toast {
+      position: fixed; bottom: var(--space-xl); right: var(--space-xl); z-index: 300;
+      background: var(--bg-elevated); border: 1px solid rgba(200,149,108,0.15);
+      padding: var(--space-md) var(--space-lg); display: flex; align-items: center; gap: var(--space-md);
+      opacity: 0; transform: translateY(20px); pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s var(--ease-spring);
+      box-shadow: 0 8px 24px rgba(var(--shadow-color),0.3);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+    .toast-icon { color: var(--gold); }
+    .toast-text { font-size: 0.85rem; color: var(--cream); }
+
+    /* ══════ CART SIDEBAR ══════ */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .cart-overlay.active { opacity: 1; pointer-events: all; }
+    .cart-sidebar {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 90vw;
+      background: var(--bg-surface); z-index: 201; transform: translateX(100%);
+      transition: transform 0.4s var(--ease-out-expo);
+      display: flex; flex-direction: column; border-left: 1px solid rgba(200,149,108,0.08);
+    }
+    .cart-sidebar.active { transform: translateX(0); }
+    .cart-header {
+      padding: var(--space-lg) var(--space-xl); border-bottom: 1px solid rgba(200,149,108,0.08);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cart-header h3 { font-size: 1.2rem; color: var(--cream); }
+    .cart-close { background: none; border: none; color: var(--cream-dim); cursor: pointer; transition: color 0.3s; }
+    .cart-close:hover { color: var(--cream); }
+    .cart-close:focus-visible { outline: 2px solid var(--gold); }
+    .cart-items { flex: 1; padding: var(--space-lg) var(--space-xl); overflow-y: auto; }
+    .cart-empty { text-align: center; color: var(--text-muted); padding-top: var(--space-2xl); }
+    .cart-empty svg { color: var(--gold-dim); margin-bottom: var(--space-md); }
+    .cart-item { display: flex; gap: var(--space-md); padding: var(--space-md) 0; border-bottom: 1px solid rgba(200,149,108,0.06); }
+    .cart-item-img { width: 56px; height: 56px; object-fit: cover; flex-shrink: 0; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-size: 0.85rem; color: var(--cream); font-weight: 500; }
+    .cart-item-price { font-size: 0.8rem; color: var(--gold); margin-top: 2px; }
+    .cart-item-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.7rem; margin-top: 4px; transition: color 0.3s; }
+    .cart-item-remove:hover { color: #c0392b; }
+    .cart-footer { padding: var(--space-lg) var(--space-xl); border-top: 1px solid rgba(200,149,108,0.08); }
+    .cart-total { display: flex; justify-content: space-between; margin-bottom: var(--space-lg); }
+    .cart-total span:first-child { color: var(--cream-dim); }
+    .cart-total span:last-child { font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--gold); }
+    .cart-checkout {
+      width: 100%; padding: 14px; background: var(--gold); border: none;
+      color: var(--bg-deep); font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.3s, transform 0.2s var(--ease-spring);
+    }
+    .cart-checkout:hover { background: var(--cream); }
+    .cart-checkout:active { transform: scale(0.98); }
+    .cart-checkout:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+
+    .nav-cart {
+      position: relative; cursor: pointer; color: var(--cream-dim); transition: color 0.3s;
+    }
+    .nav-cart:hover { color: var(--gold); }
+    .cart-badge {
+      position: absolute; top: -6px; right: -8px; background: #c0392b; color: #fff;
+      font-size: 0.6rem; font-weight: 700; width: 16px; height: 16px; border-radius: 50%;
+      display: none; align-items: center; justify-content: center;
+    }
+    .cart-badge.show { display: flex; }
+  </style>
+</head>
+<body>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-logo">Kaphi Kahve</div>
+    <div class="loader-sub">Çekirdekten Fincana</div>
+    <div class="loader-progress"><div class="loader-fill"></div></div>
+  </div>
+
+  <div class="noise"></div>
+  <div class="progress-bar" id="progress-bar"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">Kaphi<em>.</em></a>
+    <div class="nav-right">
+      <a href="#scene-products">Ürünler</a>
+      <a href="#scene-origin">Hikaye</a>
+      <div class="nav-cart" id="cart-toggle" role="button" tabindex="0" aria-label="Sepet">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cart-count">0</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint" id="scroll-hint">
+    <span>Kaydır</span>
+    <div class="scroll-arrow"></div>
+  </div>
+
+  <!-- Cart -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h3>Sepetiniz</h3>
+      <button class="cart-close" id="cart-close" aria-label="Kapat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <p>Sepetiniz boş</p>
+      </div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Toplam</span><span id="cart-total-price">₺0</span></div>
+      <button class="cart-checkout">Siparişi Tamamla</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="toast-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+    <span class="toast-text" id="toast-text"></span>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCENE 1: HERO
+  ═══════════════════════════════════════ -->
+  <section id="scene-hero" class="scene">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-bg-gradient"></div>
+    <div class="hero-center">
+      <div class="hero-eyebrow">Çekirdekten Fincana · Est. 1995</div>
+      <h1 class="hero-title">
+        <span class="word"><span>Kahvenin</span></span>
+        <span class="word"><span> </span></span>
+        <span class="word"><span><em>yolculuğu</em></span></span>
+      </h1>
+      <p class="hero-sub">Tek bir kaydırma hareketiyle, çekirdeğin topraktan fincanınıza uzanan yolculuğuna tanık olun.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SCENE 2: ORIGIN — Horizontal Scroll
+  ═══════════════════════════════════════ -->
+  <section id="scene-origin" class="scene">
+    <div class="origin-pin">
+      <div class="origin-track" id="origin-track">
+        <!-- Panel 1: Tedarik -->
+        <div class="origin-panel">
+          <div class="origin-num">01</div>
+          <div class="origin-panel-inner">
+            <div class="origin-visual">
+              <img src="https://images.unsplash.com/photo-1524350876685-274059332603?w=800&q=80" alt="Kahve çiftliği, yeşil kahve çekirdekleri hasatta" loading="lazy">
+            </div>
+            <div class="origin-text">
+              <div class="origin-label">Tedarik</div>
+              <h2>Dünyanın <em>en verimli</em> topraklarından</h2>
+              <p>Etiyopya'nın Yirgacheffe yaylalarından, Kolombiya'nın Medellin vadilerinden, Guatemala'nın volkanik topraklarından — 12 ülkede doğrudan çiftçilerle çalışıyoruz.</p>
+              <p>Her çekirdek, SCA standartlarında cupping ile değerlendirilir. Puanı 80'in altında kalan hiçbir lot kabul edilmez.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Seçim -->
+        <div class="origin-panel">
+          <div class="origin-num">02</div>
+          <div class="origin-panel-inner">
+            <div class="origin-text" style="order:1;">
+              <div class="origin-label">Seçim</div>
+              <h2>Her çekirdek <em>bir hikâye</em> taşır</h2>
+              <p>Yeşil çekirdekler İstanbul'daki laboratuvarımıza ulaştığında, deneyimli Q-Grader'larımız her lot'u ayrı ayrı değerlendirir.</p>
+              <p>Aroma, asidite, gövde, tat, artçı tat — beş temel parametre üzerinden notlandırma yapılır. Sadece mükemmel olanlar kavurma aşamasına geçer.</p>
+            </div>
+            <div class="origin-visual" style="order:2;">
+              <img src="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=800&q=80" alt="Yeşil kahve çekirdekleri kalite kontrolde" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Teslimat -->
+        <div class="origin-panel">
+          <div class="origin-num">03</div>
+          <div class="origin-panel-inner">
+            <div class="origin-visual">
+              <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80" alt="Paketlenmiş kahve ürünleri sevkiyata hazır" loading="lazy">
+            </div>
+            <div class="origin-text">
+              <div class="origin-label">Kalite Güvencesi</div>
+              <h2>Kavurma sonrası <em>48 saat</em> içinde</h2>
+              <p>Nitrojen dolumlu özel ambalajlarımız çekirdeğin tazeliğini 3 ay boyunca korur. Kavurma tarihinden itibaren 48 saat içinde kargoya verilir.</p>
+              <p>Her paketin üzerinde lot numarası, kavurma tarihi ve flavor profili yer alır. Tam şeffaflık, tam izlenebilirlik.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SCENE 3: KAVURMA — Bean Transformation
+  ═══════════════════════════════════════ -->
+  <section id="scene-roast" class="scene">
+    <div class="roast-pin">
+      <div class="roast-glow" id="roast-glow"></div>
+
+      <div class="roast-bean-wrap">
+        <!-- Coffee bean SVG -->
+        <svg class="roast-bean" id="roast-bean" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="beanGrad" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" id="beanStop1" stop-color="#8fa968"/>
+              <stop offset="100%" id="beanStop2" stop-color="#4a6b2e"/>
+            </radialGradient>
+            <filter id="beanShadow">
+              <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <ellipse cx="100" cy="130" rx="75" ry="110" fill="url(#beanGrad)" filter="url(#beanShadow)"/>
+          <!-- Center crease -->
+          <path d="M100 30 Q85 80 90 130 Q95 180 100 230" stroke="rgba(0,0,0,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Highlight -->
+          <ellipse cx="80" cy="90" rx="25" ry="40" fill="rgba(255,255,255,0.08)" transform="rotate(-15 80 90)"/>
+        </svg>
+      </div>
+
+      <!-- Stage texts -->
+      <div class="roast-text-stages" id="roast-stages">
+        <div class="roast-stage" id="roast-s1" style="top:15%;">
+          <h2>Yeşil <em>çekirdek</em></h2>
+          <p>Hasat sonrası kurutulan çekirdek, henüz kavurulmamış haliyle laboratuvarımıza ulaşır.</p>
+        </div>
+        <div class="roast-stage" id="roast-s2" style="top:15%;">
+          <h2>Açık <em>kavurma</em></h2>
+          <p>180°C — Çiçeksi ve meyvemsi notalar öne çıkar. Filtre kahve için ideal profil.</p>
+        </div>
+        <div class="roast-stage" id="roast-s3" style="top:15%;">
+          <h2>Orta <em>kavurma</em></h2>
+          <p>210°C — Karamel, çikolata ve fındık aromaları gelişir. Dengeli, yuvarlak gövde.</p>
+        </div>
+        <div class="roast-stage" id="roast-s4" style="top:15%;">
+          <h2>Koyu <em>kavurma</em></h2>
+          <p>230°C — Yoğun, dumansı, bitter-sweet. Espresso ve Türk kahvesi için mükemmel karakter.</p>
+        </div>
+      </div>
+
+      <div class="temp-display" id="temp-display">22°C</div>
+      <canvas class="roast-particles" id="roast-particles"></canvas>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SCENE 4: ÖĞÜTME + FİNCAN
+  ═══════════════════════════════════════ -->
+  <section id="scene-grind" class="scene">
+    <div class="grind-pin">
+      <div class="grind-content">
+        <h2>Ve sonunda, <em>fincanınızda.</em></h2>
+        <p>30 yıllık ustalık, binlerce kilometre yolculuk, sayısız kalite testi — hepsi bu an için.</p>
+
+        <div class="cup-wrap" id="cup-wrap">
+          <div class="steam-lines" id="steam-lines">
+            <div class="steam-line"></div>
+            <div class="steam-line"></div>
+            <div class="steam-line"></div>
+          </div>
+          <svg class="cup-svg" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Saucer -->
+            <ellipse cx="90" cy="165" rx="85" ry="12" fill="#1e160d" stroke="rgba(200,149,108,0.15)" stroke-width="1"/>
+            <!-- Cup body -->
+            <path d="M30 60 Q28 130 50 150 Q70 165 90 165 Q110 165 130 150 Q152 130 150 60 Z" fill="#241a10" stroke="rgba(200,149,108,0.2)" stroke-width="1"/>
+            <!-- Coffee surface -->
+            <ellipse cx="90" cy="62" rx="60" ry="14" fill="#3c2415">
+              <animate attributeName="ry" values="14;12;14" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="90" cy="62" rx="50" ry="10" fill="#5C3A1E" opacity="0.5"/>
+            <!-- Cup rim -->
+            <ellipse cx="90" cy="58" rx="62" ry="15" fill="none" stroke="rgba(200,149,108,0.3)" stroke-width="1.5"/>
+            <!-- Handle -->
+            <path d="M150 80 Q180 85 180 115 Q180 145 150 140" fill="none" stroke="rgba(200,149,108,0.2)" stroke-width="4" stroke-linecap="round"/>
+            <!-- Highlight -->
+            <path d="M55 75 Q60 100 65 130" stroke="rgba(255,255,255,0.04)" stroke-width="8" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SCENE 5: PRODUCTS
+  ═══════════════════════════════════════ -->
+  <section id="scene-products" class="scene">
+    <div class="products-inner">
+      <div class="products-header">
+        <div class="section-label">Koleksiyon</div>
+        <h2>Şimdi <em>keşfedin</em></h2>
+        <p>Her biri özenle seçilmiş, ustalıkla kavrulmuş kahve koleksiyonumuz.</p>
+      </div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>İlk siparişe <em>özel</em> %15 indirim</h2>
+      <p>Kaphi Kahve dünyasına adım atın. Gerçek tutkuyu keşfedin.</p>
+      <a href="#scene-products" class="btn-primary"><span>Sipariş Ver</span></a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">Kaphi<em>.</em></a>
+        <p>Dünyadan özenle seçilmiş kahve çekirdekleri. İstanbul'da ustaca kavrulur, Türkiye'nin dört bir yanına ulaştırılır.</p>
+        <div class="footer-social">
+          <a href="https://instagram.com/tcwcoffee" aria-label="Instagram" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Ürünler</h4>
+        <ul>
+          <li><a href="#">Espresso Blend</a></li>
+          <li><a href="#">Single Origin</a></li>
+          <li><a href="#">Türk Kahvesi</a></li>
+          <li><a href="#">Filtre Kahve</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Kurumsal</h4>
+        <ul>
+          <li><a href="#">Hakkımızda</a></li>
+          <li><a href="#">Private Label</a></li>
+          <li><a href="#">Toptan Satış</a></li>
+          <li><a href="#">Kariyer</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>İletişim</h4>
+        <ul>
+          <li><a href="tel:02164121310">0216 412 13 10</a></li>
+          <li><a href="mailto:info@kaphikahve.com">info@kaphikahve.com</a></li>
+          <li><a href="#">İstanbul, Türkiye</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Kaphi Kahve. Tüm hakları saklıdır.</p>
+      <p><a href="#">Gizlilik</a> · <a href="#">Koşullar</a></p>
+    </div>
+  </footer>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+
+  <script>
+    /* ═══════════════════════════════════════
+       DATA
+    ═══════════════════════════════════════ */
+    const products = [
+      { name:"Horeca Espresso Blend", cat:"Espresso Blend", desc:"Yoğun gövde, çikolata ve fındık notaları. Sütle mükemmel uyum.", price:320, weight:"1 kg", img:"https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=600&q=80", badge:"best" },
+      { name:"Special Espresso Blend", cat:"Espresso Blend", desc:"Karamel tatlılığı, narenciye asidite. Specialty kahve severler için.", price:395, weight:"1 kg", img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=600&q=80", badge:"new" },
+      { name:"Colombia Medellin", cat:"Single Origin", desc:"Kırmızı elma, bal ve kakao. Yuvarlak gövdeli, dengeli fincan.", price:445, weight:"500 g", img:"https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=600&q=80", badge:null },
+      { name:"Geleneksel Türk Kahvesi", cat:"Türk Kahvesi", desc:"Taş değirmende öğütülmüş, geleneksel formül. Köpüğü bol, aroması derin.", price:180, weight:"500 g", img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", badge:"best" },
+      { name:"Ethiopia Yirgacheffe", cat:"Single Origin", desc:"Yasemin, bergamot, limon. Çiçeksi aroma ve temiz asidite.", price:485, weight:"500 g", img:"https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80", badge:"new" },
+      { name:"Brazil Santos Filtre", cat:"Filtre Kahve", desc:"Düşük asidite, fıstık ve karamel. Günlük içim için ideal.", price:290, weight:"500 g", img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80", badge:null },
+      { name:"Kenya AA", cat:"Filtre Kahve", desc:"Böğürtlen, domates, siyah çay. Kompleks ve canlı bir fincan.", price:510, weight:"500 g", img:"https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=600&q=80", badge:null },
+      { name:"Menengiç Kahvesi", cat:"Türk Kahvesi", desc:"Güneydoğu'nun efsanevi lezzeti. Kafeinsiz, doğal, otantik.", price:210, weight:"500 g", img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80", badge:null },
+    ];
+
+    let cart = [];
+    function addToCart(p) {
+      cart.push(p);
+      updateCartUI();
+      showToast(p.name + ' sepete eklendi');
+    }
+    function removeFromCart(i) { cart.splice(i,1); updateCartUI(); }
+    function updateCartUI() {
+      const c = document.getElementById('cart-count');
+      const items = document.getElementById('cart-items');
+      const total = document.getElementById('cart-total-price');
+      c.textContent = cart.length;
+      c.classList.toggle('show', cart.length > 0);
+      if (!cart.length) {
+        items.innerHTML = '<div class="cart-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><p>Sepetiniz boş</p></div>';
+      } else {
+        items.innerHTML = cart.map((it,i) => '<div class="cart-item"><img class="cart-item-img" src="'+it.img+'" alt="'+it.name+'"><div class="cart-item-info"><div class="cart-item-name">'+it.name+'</div><div class="cart-item-price">₺'+it.price+'</div><button class="cart-item-remove" onclick="removeFromCart('+i+')">Kaldır</button></div></div>').join('');
+      }
+      total.textContent = '₺' + cart.reduce((s,it) => s+it.price, 0);
+      if (typeof anime !== 'undefined') anime({ targets: c, scale: [1.5,1], duration: 400, easing: 'easeOutElastic(1,.5)' });
+    }
+    function showToast(t) {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-text').textContent = t;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+    function renderProducts() {
+      document.getElementById('products-grid').innerHTML = products.map(p => {
+        const safeN = p.name.replace(/'/g,"\\'");
+        const thumbImg = p.img.replace('w=600','w=200');
+        return '<div class="product-card">'
+          + (p.badge ? '<div class="product-badge badge-'+ p.badge +'">'+(p.badge==='new'?'Yeni':'Çok Satan')+'</div>' : '')
+          + '<div class="product-img-wrap"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy">'
+          + '<div class="quick-add"><button onclick="addToCart({name:\''+safeN+'\',price:'+p.price+',img:\''+thumbImg+'\'})">Sepete Ekle</button></div></div>'
+          + '<div class="product-info"><div class="product-cat">'+p.cat+'</div><div class="product-name">'+p.name+'</div>'
+          + '<div class="product-desc">'+p.desc+'</div><div class="product-bottom"><span class="product-price">₺'+p.price+'</span><span class="product-weight">'+p.weight+'</span></div></div></div>';
+      }).join('');
+    }
+
+    /* ═══════════════════════════════════════
+       BOOT
+    ═══════════════════════════════════════ */
+    window.addEventListener('load', () => {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Loader animation
+      const tl = gsap.timeline({
+        onComplete: () => {
+          document.getElementById('loader').classList.add('done');
+          setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
+          bootApp();
+        }
+      });
+      tl.to('.loader-logo', { opacity:1, duration:0.5 })
+        .to('.loader-sub', { opacity:1, duration:0.4 }, '-=0.2')
+        .to('.loader-fill', { width:'100%', duration:1.4, ease:'power2.inOut' }, '-=0.3')
+        .to(['.loader-logo','.loader-sub'], { opacity:0, y:-15, duration:0.3 }, '-=0.1');
+    });
+
+    function bootApp() {
+      initLenis();
+      initThreeHero();
+      initHeroAnim();
+      initOriginScroll();
+      initRoastScene();
+      initGrindScene();
+      renderProducts();
+      initProductsReveal();
+      initCart();
+      initProgress();
+      initScrollHint();
+    }
+
+    /* ═══════════════════════════════════════
+       LENIS
+    ═══════════════════════════════════════ */
+    let lenis;
+    function initLenis() {
+      lenis = new Lenis({ duration: 1.4, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(time => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+          const tgt = document.querySelector(a.getAttribute('href'));
+          if (tgt) { e.preventDefault(); lenis.scrollTo(tgt, { offset: 0 }); }
+        });
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       THREE.JS HERO — floating particles & beans
+    ═══════════════════════════════════════ */
+    function initThreeHero() {
+      const canvas = document.getElementById('hero-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
+      camera.position.z = 6;
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambient = new THREE.AmbientLight(0xc8956c, 0.4);
+      scene.add(ambient);
+      const pt1 = new THREE.PointLight(0xc8956c, 1.2, 20);
+      pt1.position.set(4,3,5);
+      scene.add(pt1);
+      const pt2 = new THREE.PointLight(0x3c2415, 0.8, 15);
+      pt2.position.set(-3,-2,4);
+      scene.add(pt2);
+
+      // Beans
+      const beans = [];
+      const ct = window.innerWidth < 768 ? 12 : 25;
+      for (let i = 0; i < ct; i++) {
+        const g = new THREE.SphereGeometry(0.1, 12, 10);
+        const pos = g.attributes.position;
+        for (let j = 0; j < pos.count; j++) {
+          pos.setX(j, pos.getX(j) * 1.7);
+          pos.setZ(j, pos.getZ(j) * 1.3);
+        }
+        g.computeVertexNormals();
+        const s = 0.25 + Math.random() * 0.5;
+        const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(s*0.4, s*0.22, s*0.1), roughness:0.75, metalness:0.05 });
+        const mesh = new THREE.Mesh(g, m);
+        mesh.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*8, (Math.random()-0.5)*6 - 2);
+        mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+        scene.add(mesh);
+        beans.push({ mesh, rx:(Math.random()-0.5)*0.006, ry:(Math.random()-0.5)*0.008, spd:0.2+Math.random()*0.4, off:Math.random()*6.28, by:mesh.position.y });
+      }
+
+      // Particles
+      const pGeo = new THREE.BufferGeometry();
+      const pCount = 150;
+      const pPos = new Float32Array(pCount*3);
+      for (let i=0;i<pCount;i++) { pPos[i*3]=(Math.random()-0.5)*16; pPos[i*3+1]=(Math.random()-0.5)*12; pPos[i*3+2]=(Math.random()-0.5)*8-3; }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+      const pMat = new THREE.PointsMaterial({ color:0xc8956c, size:0.015, transparent:true, opacity:0.25, blending:THREE.AdditiveBlending });
+      const pts = new THREE.Points(pGeo, pMat);
+      scene.add(pts);
+
+      let mx=0, my=0;
+      window.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-0.5)*2; my=(e.clientY/window.innerHeight-0.5)*2; });
+
+      let t=0;
+      (function anim() {
+        requestAnimationFrame(anim);
+        t+=0.008;
+        beans.forEach(b => { b.mesh.rotation.x+=b.rx; b.mesh.rotation.y+=b.ry; b.mesh.position.y=b.by+Math.sin(t*b.spd+b.off)*0.25; });
+        const pp = pts.geometry.attributes.position;
+        for (let i=0;i<pCount;i++) { pp.array[i*3+1]+=0.002; if(pp.array[i*3+1]>6) pp.array[i*3+1]=-6; }
+        pp.needsUpdate=true;
+        camera.position.x+=(mx*0.25-camera.position.x)*0.02;
+        camera.position.y+=(-my*0.15-camera.position.y)*0.02;
+        camera.lookAt(0,0,0);
+        renderer.render(scene,camera);
+      })();
+
+      window.addEventListener('resize', () => {
+        camera.aspect=window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth,window.innerHeight);
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       HERO TEXT ANIMATION
+    ═══════════════════════════════════════ */
+    function initHeroAnim() {
+      const tl = gsap.timeline({ delay: 2.2 });
+      tl.to('.hero-eyebrow', { opacity:1, duration:0.6, ease:'power2.out' })
+        .to('.hero-title .word span', { y:'0%', duration:1, ease:'power4.out', stagger:0.08 }, '-=0.3')
+        .to('.hero-sub', { opacity:1, y:0, duration:0.7, ease:'power3.out' }, '-=0.5');
+    }
+
+    /* ═══════════════════════════════════════
+       ORIGIN — Horizontal Scroll
+    ═══════════════════════════════════════ */
+    function initOriginScroll() {
+      const track = document.getElementById('origin-track');
+      const panels = track.querySelectorAll('.origin-panel');
+
+      gsap.to(track, {
+        x: () => -(track.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#scene-origin',
+          pin: '.origin-pin',
+          scrub: 1,
+          start: 'top top',
+          end: () => '+=' + (track.scrollWidth - window.innerWidth),
+          invalidateOnRefresh: true,
+        }
+      });
+
+      // Reveal each panel's content
+      panels.forEach((panel, i) => {
+        const inner = panel.querySelector('.origin-panel-inner');
+        if (!inner) return;
+        gsap.from(inner.children, {
+          opacity: 0,
+          y: 60,
+          stagger: 0.2,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: panel,
+            containerAnimation: gsap.getById && gsap.getById('originScroll'),
+            start: 'left 80%',
+            toggleActions: 'play none none none',
+            // Use the horizontal scroll position
+            scroller: window,
+          }
+        });
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       ROAST SCENE — Bean color morph + stages
+    ═══════════════════════════════════════ */
+    function initRoastScene() {
+      const bean = document.getElementById('roast-bean');
+      const stop1 = document.getElementById('beanStop1');
+      const stop2 = document.getElementById('beanStop2');
+      const glow = document.getElementById('roast-glow');
+      const tempEl = document.getElementById('temp-display');
+      const stages = ['roast-s1','roast-s2','roast-s3','roast-s4'];
+
+      // Color stops for each stage
+      const colors = [
+        { s1:'#8fa968', s2:'#4a6b2e' },  // green
+        { s1:'#c4a55a', s2:'#8B6914' },  // light roast
+        { s1:'#8B5E3C', s2:'#5C3A1E' },  // medium roast
+        { s1:'#3E2215', s2:'#1a0e06' },  // dark roast
+      ];
+
+      const temps = [22, 180, 210, 230];
+
+      // Pinned roast section
+      const roastTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scene-roast',
+          pin: '.roast-pin',
+          scrub: 0.8,
+          start: 'top top',
+          end: '+=300%',
+        }
+      });
+
+      // Initial bean entrance
+      roastTl.from(bean, { scale:0.3, opacity:0, rotation:-30, duration:0.15, ease:'power2.out' });
+
+      // Stage transitions
+      stages.forEach((stageId, i) => {
+        const stageEl = document.getElementById(stageId);
+        const pos = (i) * 0.28 + 0.05;
+
+        // Show stage text
+        roastTl.to(stageEl, { opacity:1, duration:0.08 }, pos);
+        // Color morph
+        roastTl.to(stop1, { attr: { 'stop-color': colors[i].s1 }, duration:0.15 }, pos - 0.02);
+        roastTl.to(stop2, { attr: { 'stop-color': colors[i].s2 }, duration:0.15 }, pos - 0.02);
+
+        // Bean scale pulse
+        roastTl.to(bean, { scale: 1 + i * 0.08, rotation: i * 5, duration: 0.15, ease:'power1.inOut' }, pos);
+
+        // Glow intensity
+        roastTl.to(glow, { opacity: i * 0.25, scale: 1 + i * 0.3, duration:0.15 }, pos);
+
+        // Hide stage text before next
+        if (i < stages.length - 1) {
+          roastTl.to(stageEl, { opacity:0, duration:0.06 }, pos + 0.22);
+        }
+      });
+
+      // Temperature counter
+      ScrollTrigger.create({
+        trigger: '#scene-roast',
+        start: 'top top',
+        end: '+=300%',
+        scrub: true,
+        onUpdate: self => {
+          const p = self.progress;
+          const temp = Math.round(22 + p * 208);
+          tempEl.textContent = temp + '°C';
+          tempEl.style.opacity = 0.08 + p * 0.2;
+        }
+      });
+
+      // Roast particles (sparks)
+      initRoastParticles();
+    }
+
+    function initRoastParticles() {
+      const canvas = document.getElementById('roast-particles');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const sparks = [];
+      for (let i = 0; i < 40; i++) {
+        sparks.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: -Math.random() * 1.5 - 0.5,
+          size: Math.random() * 2 + 0.5,
+          alpha: 0,
+          life: Math.random(),
+        });
+      }
+
+      let roastProgress = 0;
+      ScrollTrigger.create({
+        trigger: '#scene-roast',
+        start: 'top top',
+        end: '+=300%',
+        scrub: true,
+        onUpdate: self => { roastProgress = self.progress; }
+      });
+
+      function draw() {
+        requestAnimationFrame(draw);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        sparks.forEach(s => {
+          s.alpha = roastProgress * 0.6;
+          s.x += s.vx;
+          s.y += s.vy * (0.5 + roastProgress * 2);
+          s.life -= 0.003;
+
+          if (s.y < -10 || s.life <= 0) {
+            s.x = canvas.width * 0.3 + Math.random() * canvas.width * 0.4;
+            s.y = canvas.height * 0.5 + Math.random() * canvas.height * 0.3;
+            s.life = 1;
+          }
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          const r = 200 + Math.round(roastProgress * 55);
+          const g = 149 - Math.round(roastProgress * 100);
+          const b = 108 - Math.round(roastProgress * 80);
+          ctx.fillStyle = `rgba(${r},${g},${b},${s.alpha * s.life})`;
+          ctx.fill();
+        });
+      }
+      draw();
+
+      window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+    }
+
+    /* ═══════════════════════════════════════
+       GRIND / CUP SCENE
+    ═══════════════════════════════════════ */
+    function initGrindScene() {
+      const grindTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scene-grind',
+          pin: '.grind-pin',
+          scrub: 1,
+          start: 'top top',
+          end: '+=200%',
+        }
+      });
+
+      // Text reveal
+      grindTl.from('.grind-content h2', { y: 80, opacity: 0, duration: 0.3, ease: 'power3.out' })
+        .from('.grind-content p', { y: 40, opacity: 0, duration: 0.2, ease: 'power3.out' }, '-=0.1');
+
+      // Cup entrance
+      grindTl.from('#cup-wrap', { y: 100, opacity: 0, scale: 0.8, duration: 0.3, ease: 'power3.out' }, '-=0.1');
+
+      // Steam lines
+      grindTl.to('.steam-line', {
+        opacity: 0.15,
+        y: -20,
+        duration: 0.3,
+        stagger: 0.05,
+        ease: 'power2.out'
+      }, '-=0.1');
+
+      // Steam continuous animation (not scroll-tied)
+      gsap.to('.steam-line:nth-child(1)', { y: -35, opacity: 0, duration: 2, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0 });
+      gsap.to('.steam-line:nth-child(2)', { y: -45, opacity: 0, duration: 2.5, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0.4 });
+      gsap.to('.steam-line:nth-child(3)', { y: -30, opacity: 0, duration: 1.8, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0.8 });
+    }
+
+    /* ═══════════════════════════════════════
+       PRODUCTS REVEAL
+    ═══════════════════════════════════════ */
+    function initProductsReveal() {
+      gsap.from('.products-header', {
+        scrollTrigger: { trigger: '.products-header', start: 'top 85%', once: true },
+        y: 50, opacity: 0, duration: 0.8, ease: 'power3.out'
+      });
+
+      gsap.from('.product-card', {
+        scrollTrigger: { trigger: '.products-grid', start: 'top 85%', once: true },
+        y: 60, opacity: 0, duration: 0.7, stagger: 0.08, ease: 'power3.out'
+      });
+
+      gsap.from('.cta-inner', {
+        scrollTrigger: { trigger: '.cta-inner', start: 'top 85%', once: true },
+        y: 50, opacity: 0, duration: 0.8, ease: 'power3.out'
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       CART
+    ═══════════════════════════════════════ */
+    function initCart() {
+      const toggle = document.getElementById('cart-toggle');
+      const overlay = document.getElementById('cart-overlay');
+      const sidebar = document.getElementById('cart-sidebar');
+      const close = document.getElementById('cart-close');
+      const open = () => { overlay.classList.add('active'); sidebar.classList.add('active'); };
+      const shut = () => { overlay.classList.remove('active'); sidebar.classList.remove('active'); };
+      toggle.addEventListener('click', open);
+      toggle.addEventListener('keydown', e => { if(e.key==='Enter') open(); });
+      overlay.addEventListener('click', shut);
+      close.addEventListener('click', shut);
+    }
+
+    /* ═══════════════════════════════════════
+       PROGRESS BAR
+    ═══════════════════════════════════════ */
+    function initProgress() {
+      const bar = document.getElementById('progress-bar');
+      window.addEventListener('scroll', () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (window.scrollY / h * 100) + '%';
+      }, { passive: true });
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL HINT
+    ═══════════════════════════════════════ */
+    function initScrollHint() {
+      const hint = document.getElementById('scroll-hint');
+      window.addEventListener('scroll', () => {
+        hint.classList.toggle('hide', window.scrollY > 100);
+      }, { passive: true });
+    }
+  </script>
+</body>
+</html>
