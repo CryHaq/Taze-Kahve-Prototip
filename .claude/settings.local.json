@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:kaphikahve.com)",
-      "WebFetch(domain:animejs.com)"
+      "WebFetch(domain:animejs.com)",
+      "Bash(node screenshot.js roast)",
+      "Bash(node debug3.js)",
+      "Bash(node -e ' *)"
     ]
   }
 }

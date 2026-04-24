@@ -117,6 +117,10 @@
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
     }
+    /* Scenes with pinned inner panels must NOT vertically center the pin-spacer */
+    #scene-origin, #scene-roast, #scene-grind {
+      display: block; align-items: stretch; justify-content: flex-start;
+    }
 
     /* ══════ SCENE 1: HERO ══════ */
     #scene-hero {
@@ -225,10 +229,12 @@
       z-index: 1;
     }
 
-    .roast-bean {
-      width: clamp(200px, 30vw, 380px); height: auto; position: relative;
-      filter: drop-shadow(0 20px 60px rgba(200,149,108,0.2));
-      transition: filter 0.3s;
+    .roast-canvas-wrap {
+      width: clamp(280px, 42vw, 540px); aspect-ratio: 1; position: relative;
+    }
+    #roast-canvas {
+      position: absolute; inset: 0; width: 100% !important; height: 100% !important;
+      display: block;
     }
 
     .roast-glow {
@@ -240,13 +246,13 @@
     }
 
     .roast-text-stages {
-      position: absolute; z-index: 3; width: 100%;
-      display: flex; flex-direction: column; align-items: center;
+      position: absolute; inset: 0; z-index: 3;
       pointer-events: none;
     }
 
     .roast-stage {
-      position: absolute; text-align: center; opacity: 0;
+      position: absolute; top: 11%; left: 50%; transform: translateX(-50%);
+      text-align: center; opacity: 0;
       width: 80%; max-width: 600px;
     }
 
@@ -284,26 +290,15 @@
     .grind-content h2 em { font-style: italic; color: var(--gold); }
     .grind-content p { color: var(--cream-dim); font-size: 1.1rem; max-width: 500px; margin: 0 auto var(--space-xl); }
 
-    /* Cup SVG */
+    /* Cup 3D canvas */
     .cup-wrap {
-      width: clamp(200px, 25vw, 320px); margin: 0 auto;
+      width: clamp(320px, 50vw, 620px); aspect-ratio: 1; margin: 0 auto;
       position: relative;
     }
-
-    .cup-svg { width: 100%; height: auto; }
-
-    .steam-lines {
-      position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
-      width: 80px; height: 60px;
+    #cup-canvas {
+      position: absolute; inset: 0; width: 100% !important; height: 100% !important;
+      display: block;
     }
-    .steam-line {
-      position: absolute; width: 2px; background: var(--cream);
-      border-radius: 1px; opacity: 0;
-      bottom: 0;
-    }
-    .steam-line:nth-child(1) { left: 15px; height: 30px; }
-    .steam-line:nth-child(2) { left: 35px; height: 40px; }
-    .steam-line:nth-child(3) { left: 55px; height: 25px; }
 
     /* ══════ SCENE 5: PRODUCTS ══════ */
     #scene-products {
@@ -679,40 +674,26 @@
       <div class="roast-glow" id="roast-glow"></div>
 
       <div class="roast-bean-wrap">
-        <!-- Coffee bean SVG -->
-        <svg class="roast-bean" id="roast-bean" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="beanGrad" cx="40%" cy="35%" r="65%">
-              <stop offset="0%" id="beanStop1" stop-color="#8fa968"/>
-              <stop offset="100%" id="beanStop2" stop-color="#4a6b2e"/>
-            </radialGradient>
-            <filter id="beanShadow">
-              <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.4"/>
-            </filter>
-          </defs>
-          <ellipse cx="100" cy="130" rx="75" ry="110" fill="url(#beanGrad)" filter="url(#beanShadow)"/>
-          <!-- Center crease -->
-          <path d="M100 30 Q85 80 90 130 Q95 180 100 230" stroke="rgba(0,0,0,0.3)" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <!-- Highlight -->
-          <ellipse cx="80" cy="90" rx="25" ry="40" fill="rgba(255,255,255,0.08)" transform="rotate(-15 80 90)"/>
-        </svg>
+        <div class="roast-canvas-wrap">
+          <canvas id="roast-canvas"></canvas>
+        </div>
       </div>
 
       <!-- Stage texts -->
       <div class="roast-text-stages" id="roast-stages">
-        <div class="roast-stage" id="roast-s1" style="top:15%;">
+        <div class="roast-stage" id="roast-s1" >
           <h2>Yeşil <em>çekirdek</em></h2>
           <p>Hasat sonrası kurutulan çekirdek, henüz kavurulmamış haliyle laboratuvarımıza ulaşır.</p>
         </div>
-        <div class="roast-stage" id="roast-s2" style="top:15%;">
+        <div class="roast-stage" id="roast-s2" >
           <h2>Açık <em>kavurma</em></h2>
           <p>180°C — Çiçeksi ve meyvemsi notalar öne çıkar. Filtre kahve için ideal profil.</p>
         </div>
-        <div class="roast-stage" id="roast-s3" style="top:15%;">
+        <div class="roast-stage" id="roast-s3" >
           <h2>Orta <em>kavurma</em></h2>
           <p>210°C — Karamel, çikolata ve fındık aromaları gelişir. Dengeli, yuvarlak gövde.</p>
         </div>
-        <div class="roast-stage" id="roast-s4" style="top:15%;">
+        <div class="roast-stage" id="roast-s4" >
           <h2>Koyu <em>kavurma</em></h2>
           <p>230°C — Yoğun, dumansı, bitter-sweet. Espresso ve Türk kahvesi için mükemmel karakter.</p>
         </div>
@@ -733,28 +714,7 @@
         <p>30 yıllık ustalık, binlerce kilometre yolculuk, sayısız kalite testi — hepsi bu an için.</p>
 
         <div class="cup-wrap" id="cup-wrap">
-          <div class="steam-lines" id="steam-lines">
-            <div class="steam-line"></div>
-            <div class="steam-line"></div>
-            <div class="steam-line"></div>
-          </div>
-          <svg class="cup-svg" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
-            <!-- Saucer -->
-            <ellipse cx="90" cy="165" rx="85" ry="12" fill="#1e160d" stroke="rgba(200,149,108,0.15)" stroke-width="1"/>
-            <!-- Cup body -->
-            <path d="M30 60 Q28 130 50 150 Q70 165 90 165 Q110 165 130 150 Q152 130 150 60 Z" fill="#241a10" stroke="rgba(200,149,108,0.2)" stroke-width="1"/>
-            <!-- Coffee surface -->
-            <ellipse cx="90" cy="62" rx="60" ry="14" fill="#3c2415">
-              <animate attributeName="ry" values="14;12;14" dur="3s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="90" cy="62" rx="50" ry="10" fill="#5C3A1E" opacity="0.5"/>
-            <!-- Cup rim -->
-            <ellipse cx="90" cy="58" rx="62" ry="15" fill="none" stroke="rgba(200,149,108,0.3)" stroke-width="1.5"/>
-            <!-- Handle -->
-            <path d="M150 80 Q180 85 180 115 Q180 145 150 140" fill="none" stroke="rgba(200,149,108,0.2)" stroke-width="4" stroke-linecap="round"/>
-            <!-- Highlight -->
-            <path d="M55 75 Q60 100 65 130" stroke="rgba(255,255,255,0.04)" stroke-width="8" stroke-linecap="round" fill="none"/>
-          </svg>
+          <canvas id="cup-canvas"></canvas>
         </div>
       </div>
     </div>
@@ -933,6 +893,7 @@
     let lenis;
     function initLenis() {
       lenis = new Lenis({ duration: 1.4, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+      window.lenis = lenis;
       lenis.on('scroll', ScrollTrigger.update);
       gsap.ticker.add(time => lenis.raf(time * 1000));
       gsap.ticker.lagSmoothing(0);
@@ -1073,78 +1034,235 @@
     }
 
     /* ═══════════════════════════════════════
-       ROAST SCENE — Bean color morph + stages
+       ROAST SCENE — 3D bean (Three.js) + scroll morph
     ═══════════════════════════════════════ */
     function initRoastScene() {
-      const bean = document.getElementById('roast-bean');
-      const stop1 = document.getElementById('beanStop1');
-      const stop2 = document.getElementById('beanStop2');
-      const glow = document.getElementById('roast-glow');
+      const canvas = document.getElementById('roast-canvas');
       const tempEl = document.getElementById('temp-display');
-      const stages = ['roast-s1','roast-s2','roast-s3','roast-s4'];
+      const glow = document.getElementById('roast-glow');
+      const stageIds = ['roast-s1','roast-s2','roast-s3','roast-s4'];
 
-      // Color stops for each stage
-      const colors = [
-        { s1:'#8fa968', s2:'#4a6b2e' },  // green
-        { s1:'#c4a55a', s2:'#8B6914' },  // light roast
-        { s1:'#8B5E3C', s2:'#5C3A1E' },  // medium roast
-        { s1:'#3E2215', s2:'#1a0e06' },  // dark roast
+      // ── Three.js setup ──
+      const scene = new THREE.Scene();
+      function getSize() {
+        const r = canvas.getBoundingClientRect();
+        return { w: r.width || 400, h: r.height || 400 };
+      }
+      let s = getSize();
+      const camera = new THREE.PerspectiveCamera(38, s.w / s.h, 0.1, 50);
+      camera.position.set(0, 0, 4.5);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(s.w, s.h, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // ── Lighting ──
+      const ambient = new THREE.AmbientLight(0xffffff, 0.18);
+      scene.add(ambient);
+
+      const keyLight = new THREE.DirectionalLight(0xfff0d6, 1.0);
+      keyLight.position.set(3, 4, 3);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x6080a8, 0.18);
+      fillLight.position.set(-3, -1, 2);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffeecc, 0.4);
+      rimLight.position.set(-1.5, 0.5, -3);
+      scene.add(rimLight);
+
+      const lightCool = new THREE.Color(0xfff0d6);
+      const lightHot  = new THREE.Color(0xff8030);
+
+      // ── Bean halves ──
+      function createHalfGeometry(side) {
+        const geo = new THREE.SphereGeometry(1, 96, 96);
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+          // Ellipsoid: tall, narrow, flat
+          x *= 0.62; y *= 1.05; z *= 0.42;
+          // Subtle surface waviness for natural feel
+          const noise = Math.sin(y * 12) * Math.cos(z * 9) * 0.012;
+          x += noise * Math.sign(x || 0.001);
+          z += noise * 0.4;
+          // Clamp to one side: flat inner face
+          if (side < 0) x = Math.min(x, 0);
+          else x = Math.max(x, 0);
+          pos.setXYZ(i, x, y, z);
+        }
+        geo.computeVertexNormals();
+        return geo;
+      }
+
+      const beanMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#8fa968'),
+        roughness: 0.9, metalness: 0.05,
+      });
+
+      const beanGroup = new THREE.Group();
+      const leftHalf = new THREE.Mesh(createHalfGeometry(-1), beanMat);
+      const rightHalf = new THREE.Mesh(createHalfGeometry(+1), beanMat);
+      beanGroup.add(leftHalf, rightHalf);
+      beanGroup.scale.setScalar(1.25);
+      scene.add(beanGroup);
+
+      // ── Smoke particles ──
+      const smokeTex = (function() {
+        const c = document.createElement('canvas');
+        c.width = c.height = 64;
+        const cx = c.getContext('2d');
+        const grad = cx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(0.5, 'rgba(255,255,255,0.18)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        cx.fillStyle = grad; cx.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(c);
+      })();
+
+      const smokeCount = 60;
+      const smokeGeo = new THREE.BufferGeometry();
+      const smokePos = new Float32Array(smokeCount * 3);
+      const smokeData = [];
+      for (let i = 0; i < smokeCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.random() * 0.55;
+        const px = Math.cos(angle) * r;
+        const pz = Math.sin(angle) * r;
+        const py = -1 + Math.random() * 3.5;
+        smokePos[i*3] = px; smokePos[i*3+1] = py; smokePos[i*3+2] = pz;
+        smokeData.push({ vy: 0.004 + Math.random() * 0.012, bx: px, bz: pz, ph: Math.random() * 6.28 });
+      }
+      smokeGeo.setAttribute('position', new THREE.BufferAttribute(smokePos, 3));
+      const smokeMat = new THREE.PointsMaterial({
+        map: smokeTex, size: 0.5, transparent: true, opacity: 0,
+        depthWrite: false, color: 0xb0a290,
+      });
+      const smokePoints = new THREE.Points(smokeGeo, smokeMat);
+      scene.add(smokePoints);
+
+      // ── Color stops ──
+      const colorStops = [
+        [0.00, new THREE.Color('#6b9248')],
+        [0.33, new THREE.Color('#b07028')],
+        [0.66, new THREE.Color('#3a200e')],
+        [1.00, new THREE.Color('#0a0301')],
       ];
-
-      const temps = [22, 180, 210, 230];
-
-      // Pinned roast section
-      const roastTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#scene-roast',
-          pin: '.roast-pin',
-          scrub: 0.8,
-          start: 'top top',
-          end: '+=300%',
+      function lerpRoastColor(p) {
+        for (let i = 0; i < colorStops.length - 1; i++) {
+          const [t0, c0] = colorStops[i];
+          const [t1, c1] = colorStops[i+1];
+          if (p <= t1) {
+            const lt = Math.max(0, Math.min(1, (p - t0) / (t1 - t0)));
+            return c0.clone().lerp(c1, lt);
+          }
         }
-      });
+        return colorStops[colorStops.length - 1][1];
+      }
 
-      // Initial bean entrance
-      roastTl.from(bean, { scale:0.3, opacity:0, rotation:-30, duration:0.15, ease:'power2.out' });
-
-      // Stage transitions
-      stages.forEach((stageId, i) => {
-        const stageEl = document.getElementById(stageId);
-        const pos = (i) * 0.28 + 0.05;
-
-        // Show stage text
-        roastTl.to(stageEl, { opacity:1, duration:0.08 }, pos);
-        // Color morph
-        roastTl.to(stop1, { attr: { 'stop-color': colors[i].s1 }, duration:0.15 }, pos - 0.02);
-        roastTl.to(stop2, { attr: { 'stop-color': colors[i].s2 }, duration:0.15 }, pos - 0.02);
-
-        // Bean scale pulse
-        roastTl.to(bean, { scale: 1 + i * 0.08, rotation: i * 5, duration: 0.15, ease:'power1.inOut' }, pos);
-
-        // Glow intensity
-        roastTl.to(glow, { opacity: i * 0.25, scale: 1 + i * 0.3, duration:0.15 }, pos);
-
-        // Hide stage text before next
-        if (i < stages.length - 1) {
-          roastTl.to(stageEl, { opacity:0, duration:0.06 }, pos + 0.22);
-        }
-      });
-
-      // Temperature counter
+      // ── Scroll-driven animation ──
+      let scrollProgress = 0;
       ScrollTrigger.create({
-        trigger: '#scene-roast',
-        start: 'top top',
-        end: '+=300%',
-        scrub: true,
+        trigger: '#scene-roast', pin: '.roast-pin',
+        start: 'top top', end: '+=300%', scrub: 0.8,
         onUpdate: self => {
           const p = self.progress;
+          scrollProgress = p;
+
+          // Color + roughness (oilier as it darkens)
+          beanMat.color.copy(lerpRoastColor(p));
+          beanMat.roughness = 0.92 - p * 0.5;
+
+          // Rotation (scroll-driven, full revolution + tilt)
+          beanGroup.rotation.y = p * Math.PI * 2.4;
+          beanGroup.rotation.z = Math.sin(p * Math.PI) * 0.18;
+
+          // Half split (only after 55% scroll, smoothstep)
+          const splitT = Math.max(0, (p - 0.55) / 0.45);
+          const splitE = splitT * splitT * (3 - 2 * splitT);
+          leftHalf.position.x = -splitE * 0.08;
+          rightHalf.position.x = splitE * 0.08;
+          leftHalf.rotation.y = -splitE * 0.28;
+          rightHalf.rotation.y = splitE * 0.28;
+
+          // Light: warm shift, intensity kept low so dark roast reads dark
+          keyLight.intensity = 1.0 + p * 0.3;
+          keyLight.color.copy(lightCool).lerp(lightHot, p * 0.75);
+          ambient.intensity = 0.18 + p * 0.05;
+
+          // Smoke
+          smokeMat.opacity = Math.max(0, p - 0.18) * 0.55;
+          smokeMat.size = 0.4 + p * 0.55;
+
+          // Glow halo (DOM)
+          glow.style.opacity = p * 0.7;
+          glow.style.transform = `translate(-50%,-50%) scale(${1 + p * 0.7})`;
+
+          // Stage text (centers at 0, 0.33, 0.66, 1)
+          stageIds.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const center = i / (stageIds.length - 1);
+            const dist = Math.abs(p - center);
+            el.style.opacity = Math.max(0, 1 - dist * 5);
+          });
+
+          // Temperature
           const temp = Math.round(22 + p * 208);
           tempEl.textContent = temp + '°C';
-          tempEl.style.opacity = 0.08 + p * 0.2;
+          tempEl.style.opacity = 0.1 + p * 0.25;
         }
       });
 
-      // Roast particles (sparks)
+      // ── Mouse parallax (bean tilts subtly) ──
+      let mx = 0, my = 0;
+      document.getElementById('scene-roast').addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mx = ((e.clientX - r.left - r.width/2) / r.width) * 2;
+        my = ((e.clientY - r.top - r.height/2) / r.height) * 2;
+      });
+
+      // ── Render loop ──
+      function render() {
+        requestAnimationFrame(render);
+        // Mouse parallax adds subtle rotation on top of scroll-driven
+        beanGroup.rotation.x += (-my * 0.18 - beanGroup.rotation.x) * 0.04;
+
+        // Smoke drift (rises, sways)
+        const sp = smokeGeo.attributes.position;
+        const t = performance.now() * 0.001;
+        for (let i = 0; i < smokeCount; i++) {
+          const d = smokeData[i];
+          sp.array[i*3+1] += d.vy * (0.3 + scrollProgress * 1.6);
+          sp.array[i*3]   = d.bx + Math.sin(t * 0.5 + d.ph) * 0.15;
+          sp.array[i*3+2] = d.bz + Math.cos(t * 0.4 + d.ph) * 0.12;
+          if (sp.array[i*3+1] > 2.6) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.random() * 0.5;
+            d.bx = Math.cos(angle) * r;
+            d.bz = Math.sin(angle) * r;
+            sp.array[i*3+1] = -1.2;
+          }
+        }
+        sp.needsUpdate = true;
+
+        renderer.render(scene, camera);
+      }
+      render();
+
+      // ── Resize ──
+      const ro = new ResizeObserver(() => {
+        const ns = getSize();
+        if (ns.w > 0 && ns.h > 0) {
+          renderer.setSize(ns.w, ns.h, false);
+          camera.aspect = ns.w / ns.h;
+          camera.updateProjectionMatrix();
+        }
+      });
+      ro.observe(canvas);
+
+      // 2D sparks overlay (kept as is)
       initRoastParticles();
     }
 
@@ -1207,39 +1325,235 @@
     }
 
     /* ═══════════════════════════════════════
-       GRIND / CUP SCENE
+       GRIND / CUP SCENE — 3D ceramic cup + liquid + steam
     ═══════════════════════════════════════ */
     function initGrindScene() {
-      const grindTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#scene-grind',
-          pin: '.grind-pin',
-          scrub: 1,
-          start: 'top top',
-          end: '+=200%',
+      const canvas = document.getElementById('cup-canvas');
+      if (!canvas) return;
+
+      // Three.js setup
+      const scene = new THREE.Scene();
+      function getSize() {
+        const r = canvas.getBoundingClientRect();
+        return { w: r.width || 400, h: r.height || 400 };
+      }
+      let s = getSize();
+      const camera = new THREE.PerspectiveCamera(38, s.w / s.h, 0.1, 50);
+      camera.position.set(0, 1.4, 2.9);
+      camera.lookAt(0, -0.05, 0);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(s.w, s.h, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Lighting — soft warm setup
+      scene.add(new THREE.AmbientLight(0xffffff, 0.32));
+      const key = new THREE.DirectionalLight(0xfff0d6, 1.2);
+      key.position.set(2.5, 4, 3.5); scene.add(key);
+      const fill = new THREE.DirectionalLight(0x8aa6c8, 0.35);
+      fill.position.set(-3, 0.5, 2); scene.add(fill);
+      const rim = new THREE.DirectionalLight(0xc8956c, 0.55);
+      rim.position.set(-1, 1, -3); scene.add(rim);
+
+      // ── Cup body (lathe) ──
+      const cupPts = [
+        new THREE.Vector2(0, 0),
+        new THREE.Vector2(0.42, 0),
+        new THREE.Vector2(0.56, 0.08),
+        new THREE.Vector2(0.6, 0.45),
+        new THREE.Vector2(0.62, 0.92),
+        new THREE.Vector2(0.62, 1.02),
+        new THREE.Vector2(0.55, 1.04),
+        new THREE.Vector2(0.5, 1.0),
+        new THREE.Vector2(0.5, 0.94),
+        new THREE.Vector2(0.48, 0.45),
+        new THREE.Vector2(0.42, 0.1),
+        new THREE.Vector2(0, 0.1),
+      ];
+      const cupGeo = new THREE.LatheGeometry(cupPts, 96);
+      const cupMat = new THREE.MeshStandardMaterial({
+        color: 0xf5efe6, roughness: 0.32, metalness: 0.05,
+        side: THREE.DoubleSide,
+      });
+      const cup = new THREE.Mesh(cupGeo, cupMat);
+      cup.position.y = -0.5;
+      scene.add(cup);
+
+      // ── Saucer ──
+      const saucerPts = [
+        new THREE.Vector2(0, 0),
+        new THREE.Vector2(0.85, 0.015),
+        new THREE.Vector2(0.95, 0.05),
+        new THREE.Vector2(0.95, 0.08),
+        new THREE.Vector2(0.88, 0.06),
+        new THREE.Vector2(0, 0.04),
+      ];
+      const saucerGeo = new THREE.LatheGeometry(saucerPts, 96);
+      const saucer = new THREE.Mesh(saucerGeo, cupMat);
+      saucer.position.y = -0.6;
+      scene.add(saucer);
+
+      // ── Handle (partial torus) ──
+      const handleGeo = new THREE.TorusGeometry(0.18, 0.04, 16, 64, Math.PI * 1.4);
+      const handle = new THREE.Mesh(handleGeo, cupMat);
+      handle.position.set(0.7, -0.1, 0);
+      handle.rotation.set(0, 0, -Math.PI * 0.15);
+      scene.add(handle);
+
+      // ── Coffee surface (animated y) ──
+      const coffeeGeo = new THREE.CircleGeometry(0.48, 64);
+      const coffeeMat = new THREE.MeshStandardMaterial({
+        color: 0x4a2810, roughness: 0.4, metalness: 0.2,
+        side: THREE.DoubleSide,
+      });
+      const coffee = new THREE.Mesh(coffeeGeo, coffeeMat);
+      coffee.rotation.x = -Math.PI / 2;
+      coffee.position.set(0, -0.4, 0); // empty (just above cup interior bottom)
+      scene.add(coffee);
+      // Crema overlay (lighter rim)
+      const cremaMat = new THREE.MeshStandardMaterial({
+        color: 0xa56b3a, roughness: 0.7, metalness: 0.05,
+        transparent: true, opacity: 0.55, side: THREE.DoubleSide,
+      });
+      const crema = new THREE.Mesh(coffeeGeo, cremaMat);
+      crema.rotation.x = -Math.PI / 2;
+      crema.position.set(0, -0.398, 0);
+      crema.scale.setScalar(0.88);
+      scene.add(crema);
+
+      // ── Steam particles ──
+      const steamTex = (function() {
+        const c = document.createElement('canvas');
+        c.width = c.height = 64;
+        const cx = c.getContext('2d');
+        const grad = cx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+        grad.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        cx.fillStyle = grad; cx.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(c);
+      })();
+      const sCount = 45;
+      const sGeo = new THREE.BufferGeometry();
+      const sPos = new Float32Array(sCount * 3);
+      const sData = [];
+      for (let i = 0; i < sCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.random() * 0.4;
+        sPos[i*3] = Math.cos(angle) * r;
+        sPos[i*3+1] = 0.4 + Math.random() * 1.8;
+        sPos[i*3+2] = Math.sin(angle) * r;
+        sData.push({ vy: 0.005 + Math.random() * 0.008, ox: sPos[i*3], oz: sPos[i*3+2], ph: Math.random() * 6.28 });
+      }
+      sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+      const sMat = new THREE.PointsMaterial({
+        map: steamTex, size: 0.45, transparent: true, opacity: 0,
+        depthWrite: false, color: 0xffffff,
+      });
+      const steam = new THREE.Points(sGeo, sMat);
+      scene.add(steam);
+
+      const cupGroup = new THREE.Group();
+      cupGroup.add(cup, saucer, handle, coffee, crema, steam);
+      scene.add(cupGroup);
+
+      // ── Scroll-driven entrance + fill ──
+      let scrollProgress = 0;
+      cupGroup.scale.setScalar(0.7);
+      cupGroup.position.y = -0.4;
+      cupGroup.rotation.x = 0.15;
+
+      ScrollTrigger.create({
+        trigger: '#scene-grind', pin: '.grind-pin',
+        start: 'top top', end: '+=200%', scrub: 0.8,
+        onUpdate: self => {
+          const p = self.progress;
+          scrollProgress = p;
+
+          // Entrance: 0 → 0.25
+          const enter = Math.min(1, p / 0.25);
+          const eEase = enter * enter * (3 - 2 * enter);
+          cupGroup.scale.setScalar(0.7 + eEase * 0.3);
+          cupGroup.position.y = -0.4 + eEase * 0.1;
+          cupGroup.rotation.x = 0.15 - eEase * 0.15;
+
+          // Coffee fill: 0.2 → 0.55 (rises from -0.4 to 0.4 inside cup)
+          const fill = Math.max(0, Math.min(1, (p - 0.2) / 0.35));
+          const fillEase = fill * (2 - fill);
+          coffee.position.y = -0.4 + fillEase * 0.8;
+          crema.position.y = coffee.position.y + 0.002;
+
+          // Steam: appears after coffee fills
+          const steamP = Math.max(0, (p - 0.45) / 0.55);
+          sMat.opacity = steamP * 0.55;
+
+          // Cup gentle rotation (clockwise then back, keeps handle visible)
+          cupGroup.rotation.y = Math.sin(p * Math.PI) * 0.4;
         }
       });
 
-      // Text reveal
-      grindTl.from('.grind-content h2', { y: 80, opacity: 0, duration: 0.3, ease: 'power3.out' })
-        .from('.grind-content p', { y: 40, opacity: 0, duration: 0.2, ease: 'power3.out' }, '-=0.1');
+      // Mouse parallax
+      let mx = 0, my = 0;
+      document.getElementById('scene-grind').addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mx = ((e.clientX - r.left - r.width/2) / r.width) * 2;
+        my = ((e.clientY - r.top - r.height/2) / r.height) * 2;
+      });
 
-      // Cup entrance
-      grindTl.from('#cup-wrap', { y: 100, opacity: 0, scale: 0.8, duration: 0.3, ease: 'power3.out' }, '-=0.1');
+      // Render loop
+      function render() {
+        requestAnimationFrame(render);
 
-      // Steam lines
-      grindTl.to('.steam-line', {
-        opacity: 0.15,
-        y: -20,
-        duration: 0.3,
-        stagger: 0.05,
-        ease: 'power2.out'
-      }, '-=0.1');
+        // Subtle camera parallax
+        camera.position.x += (mx * 0.3 - camera.position.x) * 0.05;
+        camera.position.y += (0.5 - my * 0.2 - camera.position.y) * 0.05;
+        camera.lookAt(0, 0.4, 0);
 
-      // Steam continuous animation (not scroll-tied)
-      gsap.to('.steam-line:nth-child(1)', { y: -35, opacity: 0, duration: 2, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0 });
-      gsap.to('.steam-line:nth-child(2)', { y: -45, opacity: 0, duration: 2.5, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0.4 });
-      gsap.to('.steam-line:nth-child(3)', { y: -30, opacity: 0, duration: 1.8, repeat: -1, yoyo: false, ease: 'power1.inOut', delay: 0.8 });
+        // Steam rise
+        const t = performance.now() * 0.001;
+        const sp = sGeo.attributes.position;
+        for (let i = 0; i < sCount; i++) {
+          const d = sData[i];
+          sp.array[i*3+1] += d.vy * (0.4 + scrollProgress * 1.0);
+          sp.array[i*3]   = d.ox + Math.sin(t * 0.5 + d.ph) * 0.18;
+          sp.array[i*3+2] = d.oz + Math.cos(t * 0.4 + d.ph) * 0.14;
+          if (sp.array[i*3+1] > 2.5) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.random() * 0.35;
+            d.ox = Math.cos(angle) * r;
+            d.oz = Math.sin(angle) * r;
+            sp.array[i*3+1] = 0.4;
+          }
+        }
+        sp.needsUpdate = true;
+
+        // Subtle coffee surface ripple via scale oscillation
+        coffee.scale.set(1 + Math.sin(t * 1.5) * 0.005, 1, 1 + Math.cos(t * 1.5) * 0.005);
+
+        renderer.render(scene, camera);
+      }
+      render();
+
+      // Resize
+      const ro = new ResizeObserver(() => {
+        const ns = getSize();
+        if (ns.w > 0 && ns.h > 0) {
+          renderer.setSize(ns.w, ns.h, false);
+          camera.aspect = ns.w / ns.h;
+          camera.updateProjectionMatrix();
+        }
+      });
+      ro.observe(canvas);
+
+      // Text reveal (kept from original, scroll-tied)
+      gsap.from('.grind-content h2', {
+        scrollTrigger: { trigger: '.grind-content h2', start: 'top 85%', once: true },
+        y: 60, opacity: 0, duration: 0.8, ease: 'power3.out'
+      });
+      gsap.from('.grind-content p', {
+        scrollTrigger: { trigger: '.grind-content p', start: 'top 85%', once: true },
+        y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.1
+      });
     }
 
     /* ═══════════════════════════════════════
