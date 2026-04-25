@@ -10,7 +10,9 @@ debug-*.png
 debug[0-9]-shot.png
 screenshot.js
 screenshot-modal.js
+screenshot-responsive.js
 shot-*.png
+r-*.png
 
 # Local Claude Code settings
 .claude/settings.local.json
