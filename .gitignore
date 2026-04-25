@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package.json
+package-lock.json
+
+# Local dev / debug artifacts (puppeteer screenshots, scratch scripts)
+debug.js
+debug[0-9].js
+debug-*.png
+debug[0-9]-shot.png
+screenshot.js
+screenshot-modal.js
+shot-*.png
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

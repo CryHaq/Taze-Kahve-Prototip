@@ -326,10 +326,145 @@
     }
     .section-label::before, .section-label::after { content: ''; width: 24px; height: 1px; background: var(--gold-dim); }
 
+    /* Filter bar */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center;
+      margin-bottom: var(--space-2xl);
+    }
+    .filter-chip {
+      padding: 9px 18px; background: transparent; color: var(--cream-dim);
+      border: 1px solid rgba(200,149,108,0.18); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      transition: color 0.3s, background 0.3s, border-color 0.3s, transform 0.2s var(--ease-spring);
+    }
+    .filter-chip:hover { color: var(--cream); border-color: var(--gold-dim); }
+    .filter-chip.active {
+      background: var(--gold); color: var(--bg-deep); border-color: var(--gold);
+    }
+    .filter-chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .filter-chip:active { transform: scale(0.96); }
+
     .products-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: var(--space-lg);
     }
+    .product-card.hidden {
+      display: none;
+    }
+    .product-card { cursor: pointer; }
+
+    /* Product detail modal */
+    .pd-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 250;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s;
+      backdrop-filter: blur(6px);
+    }
+    .pd-overlay.active { opacity: 1; pointer-events: all; }
+    .pd-modal {
+      position: fixed; top: 50%; left: 50%; z-index: 251;
+      width: min(960px, 92vw); max-height: 88vh; overflow-y: auto;
+      background: var(--bg-elevated); border: 1px solid rgba(200,149,108,0.1);
+      transform: translate(-50%, -45%) scale(0.96); opacity: 0; pointer-events: none;
+      transition: transform 0.45s var(--ease-spring), opacity 0.4s;
+      box-shadow: 0 4px 12px rgba(var(--shadow-color),0.3),
+                  0 24px 60px rgba(var(--shadow-color),0.45),
+                  0 60px 120px rgba(var(--shadow-color),0.35);
+    }
+    .pd-modal.active { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+    .pd-close {
+      position: absolute; top: var(--space-md); right: var(--space-md); z-index: 2;
+      background: rgba(20,15,8,0.6); border: 1px solid rgba(200,149,108,0.15);
+      width: 40px; height: 40px; color: var(--cream); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s, color 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .pd-close:hover { background: var(--gold); color: var(--bg-deep); transform: rotate(90deg); }
+    .pd-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .pd-grid {
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 420px;
+    }
+    .pd-image { position: relative; overflow: hidden; aspect-ratio: 1; background: var(--bg-surface); }
+    .pd-image img { width: 100%; height: 100%; object-fit: cover; }
+    .pd-image::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 70%, rgba(30,22,13,0.4));
+    }
+    .pd-info { padding: var(--space-2xl) var(--space-xl); display: flex; flex-direction: column; gap: var(--space-md); }
+    .pd-cat {
+      font-size: 0.7rem; color: var(--gold-dim); text-transform: uppercase;
+      letter-spacing: 0.18em; font-weight: 500;
+    }
+    .pd-name {
+      font-family: 'Instrument Serif', serif; font-size: clamp(1.6rem, 3vw, 2.4rem);
+      color: var(--cream); line-height: 1.1; margin: 0;
+    }
+    .pd-price {
+      font-family: 'Instrument Serif', serif; font-size: 2rem; color: var(--gold);
+    }
+    .pd-desc { color: var(--cream-dim); font-size: 0.95rem; line-height: 1.7; }
+    .pd-meta {
+      list-style: none; padding: 0;
+      border-top: 1px solid rgba(200,149,108,0.1); padding-top: var(--space-md);
+    }
+    .pd-meta li {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      font-size: 0.82rem;
+    }
+    .pd-meta li span:first-child { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
+    .pd-meta li span:last-child { color: var(--cream); font-weight: 500; }
+    .pd-actions {
+      display: flex; gap: var(--space-md); align-items: stretch; margin-top: auto;
+    }
+    .pd-qty {
+      display: flex; align-items: center; border: 1px solid rgba(200,149,108,0.2);
+      background: var(--bg-surface);
+    }
+    .pd-qty button {
+      width: 44px; height: 100%; background: transparent; border: none;
+      color: var(--cream); font-size: 1.1rem; font-weight: 500; cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+    .pd-qty button:hover { color: var(--gold); background: rgba(200,149,108,0.05); }
+    .pd-qty button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+    .pd-qty span { padding: 0 var(--space-md); color: var(--cream); font-weight: 500; min-width: 36px; text-align: center; }
+    .pd-add {
+      flex: 1; padding: 0 var(--space-xl); background: var(--gold); color: var(--bg-deep);
+      border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: transform 0.25s var(--ease-spring);
+    }
+    .pd-add::before {
+      content: ''; position: absolute; inset: 0; background: var(--cream);
+      transform: translateX(-101%); transition: transform 0.4s var(--ease-out-expo);
+    }
+    .pd-add:hover::before { transform: translateX(0); }
+    .pd-add:hover { transform: translateY(-2px); }
+    .pd-add:active { transform: translateY(0); }
+    .pd-add span { position: relative; z-index: 1; }
+    .pd-add:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+
+    @media (max-width: 768px) {
+      .pd-grid { grid-template-columns: 1fr; }
+      .pd-image { aspect-ratio: 16/10; }
+      .pd-info { padding: var(--space-lg); }
+      .pd-actions { flex-direction: column; }
+      .pd-qty { justify-content: center; height: 50px; }
+    }
+
+    /* Cart quantity controls */
+    .cart-item-qty { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .cart-item-qty button {
+      width: 22px; height: 22px; background: var(--bg-surface);
+      border: 1px solid rgba(200,149,108,0.2); color: var(--cream);
+      cursor: pointer; font-size: 0.9rem; line-height: 1;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cart-item-qty button:hover { background: var(--gold); color: var(--bg-deep); }
+    .cart-item-qty button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+    .cart-item-qty span { font-size: 0.8rem; color: var(--cream); min-width: 18px; text-align: center; }
 
     .product-card {
       background: var(--bg-elevated); border: 1px solid rgba(200,149,108,0.05);
@@ -730,9 +865,36 @@
         <h2>Şimdi <em>keşfedin</em></h2>
         <p>Her biri özenle seçilmiş, ustalıkla kavrulmuş kahve koleksiyonumuz.</p>
       </div>
+      <div class="filter-bar" id="filter-bar"></div>
       <div class="products-grid" id="products-grid"></div>
     </div>
   </section>
+
+  <!-- Product detail modal -->
+  <div class="pd-overlay" id="pd-overlay"></div>
+  <aside class="pd-modal" id="pd-modal" role="dialog" aria-modal="true" aria-labelledby="pd-name">
+    <button class="pd-close" id="pd-close" aria-label="Kapat">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="pd-grid">
+      <div class="pd-image"><img id="pd-img" src="" alt=""></div>
+      <div class="pd-info">
+        <div class="pd-cat" id="pd-cat"></div>
+        <h2 class="pd-name" id="pd-name"></h2>
+        <div class="pd-price" id="pd-price"></div>
+        <p class="pd-desc" id="pd-desc"></p>
+        <ul class="pd-meta" id="pd-meta"></ul>
+        <div class="pd-actions">
+          <div class="pd-qty">
+            <button id="pd-qty-minus" aria-label="Azalt">−</button>
+            <span id="pd-qty-val">1</span>
+            <button id="pd-qty-plus" aria-label="Arttır">+</button>
+          </div>
+          <button class="pd-add" id="pd-add"><span>Sepete Ekle</span></button>
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <!-- CTA -->
   <section class="cta-section">
@@ -803,35 +965,60 @@
        DATA
     ═══════════════════════════════════════ */
     const products = [
-      { name:"Horeca Espresso Blend", cat:"Espresso Blend", desc:"Yoğun gövde, çikolata ve fındık notaları. Sütle mükemmel uyum.", price:320, weight:"1 kg", img:"https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=600&q=80", badge:"best" },
-      { name:"Special Espresso Blend", cat:"Espresso Blend", desc:"Karamel tatlılığı, narenciye asidite. Specialty kahve severler için.", price:395, weight:"1 kg", img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=600&q=80", badge:"new" },
-      { name:"Colombia Medellin", cat:"Single Origin", desc:"Kırmızı elma, bal ve kakao. Yuvarlak gövdeli, dengeli fincan.", price:445, weight:"500 g", img:"https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=600&q=80", badge:null },
-      { name:"Geleneksel Türk Kahvesi", cat:"Türk Kahvesi", desc:"Taş değirmende öğütülmüş, geleneksel formül. Köpüğü bol, aroması derin.", price:180, weight:"500 g", img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", badge:"best" },
-      { name:"Ethiopia Yirgacheffe", cat:"Single Origin", desc:"Yasemin, bergamot, limon. Çiçeksi aroma ve temiz asidite.", price:485, weight:"500 g", img:"https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80", badge:"new" },
-      { name:"Brazil Santos Filtre", cat:"Filtre Kahve", desc:"Düşük asidite, fıstık ve karamel. Günlük içim için ideal.", price:290, weight:"500 g", img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80", badge:null },
-      { name:"Kenya AA", cat:"Filtre Kahve", desc:"Böğürtlen, domates, siyah çay. Kompleks ve canlı bir fincan.", price:510, weight:"500 g", img:"https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=600&q=80", badge:null },
-      { name:"Menengiç Kahvesi", cat:"Türk Kahvesi", desc:"Güneydoğu'nun efsanevi lezzeti. Kafeinsiz, doğal, otantik.", price:210, weight:"500 g", img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80", badge:null },
+      { id:"horeca-espresso", name:"Horeca Espresso Blend", cat:"Espresso Blend", desc:"Yoğun gövde, çikolata ve fındık notaları. Sütle mükemmel uyum.", price:320, weight:"1 kg", img:"https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=600&q=80", badge:"best", origin:"Brezilya & Etiyopya karışım", roast:"Orta-Koyu" },
+      { id:"special-espresso", name:"Special Espresso Blend", cat:"Espresso Blend", desc:"Karamel tatlılığı, narenciye asidite. Specialty kahve severler için.", price:395, weight:"1 kg", img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=600&q=80", badge:"new", origin:"Kenya & Kolombiya karışım", roast:"Orta" },
+      { id:"colombia-medellin", name:"Colombia Medellin", cat:"Single Origin", desc:"Kırmızı elma, bal ve kakao. Yuvarlak gövdeli, dengeli fincan.", price:445, weight:"500 g", img:"https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=600&q=80", badge:null, origin:"Kolombiya — Antioquia", roast:"Orta" },
+      { id:"turk-kahvesi", name:"Geleneksel Türk Kahvesi", cat:"Türk Kahvesi", desc:"Taş değirmende öğütülmüş, geleneksel formül. Köpüğü bol, aroması derin.", price:180, weight:"500 g", img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", badge:"best", origin:"Brezilya & Yemen karışım", roast:"Koyu" },
+      { id:"yirgacheffe", name:"Ethiopia Yirgacheffe", cat:"Single Origin", desc:"Yasemin, bergamot, limon. Çiçeksi aroma ve temiz asidite.", price:485, weight:"500 g", img:"https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80", badge:"new", origin:"Etiyopya — Yirgacheffe", roast:"Açık" },
+      { id:"brazil-santos", name:"Brazil Santos Filtre", cat:"Filtre Kahve", desc:"Düşük asidite, fıstık ve karamel. Günlük içim için ideal.", price:290, weight:"500 g", img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80", badge:null, origin:"Brezilya — Santos", roast:"Orta" },
+      { id:"kenya-aa", name:"Kenya AA", cat:"Filtre Kahve", desc:"Böğürtlen, domates, siyah çay. Kompleks ve canlı bir fincan.", price:510, weight:"500 g", img:"https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=600&q=80", badge:null, origin:"Kenya — Nyeri", roast:"Açık-Orta" },
+      { id:"menengic", name:"Menengiç Kahvesi", cat:"Türk Kahvesi", desc:"Güneydoğu'nun efsanevi lezzeti. Kafeinsiz, doğal, otantik.", price:210, weight:"500 g", img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80", badge:null, origin:"Türkiye — Güneydoğu Anadolu", roast:"Geleneksel" },
     ];
 
-    let cart = [];
-    function addToCart(p) {
-      cart.push(p);
+    /* ── Cart (id → { item, qty }) ── */
+    let cart = {};
+    function cartCount() { return Object.values(cart).reduce((s, v) => s + v.qty, 0); }
+    function cartTotal() { return Object.values(cart).reduce((s, v) => s + v.qty * v.item.price, 0); }
+    function addToCart(p, qty = 1) {
+      if (cart[p.id]) cart[p.id].qty += qty;
+      else cart[p.id] = { item: p, qty };
       updateCartUI();
-      showToast(p.name + ' sepete eklendi');
+      showToast((qty > 1 ? qty + ' × ' : '') + p.name + ' sepete eklendi');
     }
-    function removeFromCart(i) { cart.splice(i,1); updateCartUI(); }
+    function changeQty(id, delta) {
+      if (!cart[id]) return;
+      cart[id].qty += delta;
+      if (cart[id].qty <= 0) delete cart[id];
+      updateCartUI();
+    }
+    function removeFromCart(id) { delete cart[id]; updateCartUI(); }
     function updateCartUI() {
       const c = document.getElementById('cart-count');
       const items = document.getElementById('cart-items');
       const total = document.getElementById('cart-total-price');
-      c.textContent = cart.length;
-      c.classList.toggle('show', cart.length > 0);
-      if (!cart.length) {
+      const count = cartCount();
+      c.textContent = count;
+      c.classList.toggle('show', count > 0);
+      if (!count) {
         items.innerHTML = '<div class="cart-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><p>Sepetiniz boş</p></div>';
       } else {
-        items.innerHTML = cart.map((it,i) => '<div class="cart-item"><img class="cart-item-img" src="'+it.img+'" alt="'+it.name+'"><div class="cart-item-info"><div class="cart-item-name">'+it.name+'</div><div class="cart-item-price">₺'+it.price+'</div><button class="cart-item-remove" onclick="removeFromCart('+i+')">Kaldır</button></div></div>').join('');
+        items.innerHTML = Object.entries(cart).map(([id, v]) =>
+          `<div class="cart-item">
+            <img class="cart-item-img" src="${v.item.img.replace('w=600','w=200')}" alt="${v.item.name}">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${v.item.name}</div>
+              <div class="cart-item-price">₺${v.item.price * v.qty}</div>
+              <div class="cart-item-qty">
+                <button onclick="changeQty('${id}', -1)" aria-label="Azalt">−</button>
+                <span>${v.qty}</span>
+                <button onclick="changeQty('${id}', 1)" aria-label="Arttır">+</button>
+              </div>
+              <button class="cart-item-remove" onclick="removeFromCart('${id}')">Kaldır</button>
+            </div>
+          </div>`
+        ).join('');
       }
-      total.textContent = '₺' + cart.reduce((s,it) => s+it.price, 0);
+      total.textContent = '₺' + cartTotal();
       if (typeof anime !== 'undefined') anime({ targets: c, scale: [1.5,1], duration: 400, easing: 'easeOutElastic(1,.5)' });
     }
     function showToast(t) {
@@ -840,17 +1027,113 @@
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2500);
     }
+
+    /* ── Filter ── */
+    let activeFilter = 'all';
+    function renderFilters() {
+      const cats = ['all', ...Array.from(new Set(products.map(p => p.cat)))];
+      const bar = document.getElementById('filter-bar');
+      bar.innerHTML = cats.map(c =>
+        `<button class="filter-chip ${c === activeFilter ? 'active' : ''}" data-cat="${c}">${c === 'all' ? 'Tümü' : c}</button>`
+      ).join('');
+      bar.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          activeFilter = chip.dataset.cat;
+          renderFilters();
+          filterProducts();
+        });
+      });
+    }
+    function filterProducts() {
+      document.querySelectorAll('.product-card').forEach(card => {
+        const match = activeFilter === 'all' || card.dataset.cat === activeFilter;
+        card.classList.toggle('hidden', !match);
+      });
+    }
+
+    /* ── Product detail modal ── */
+    let modalProduct = null, modalQty = 1;
+    function openProductModal(p) {
+      modalProduct = p;
+      modalQty = 1;
+      document.getElementById('pd-img').src = p.img;
+      document.getElementById('pd-img').alt = p.name;
+      document.getElementById('pd-cat').textContent = p.cat;
+      document.getElementById('pd-name').textContent = p.name;
+      document.getElementById('pd-price').textContent = '₺' + p.price;
+      document.getElementById('pd-desc').textContent = p.desc;
+      document.getElementById('pd-meta').innerHTML = `
+        <li><span>Ağırlık</span><span>${p.weight}</span></li>
+        <li><span>Köken</span><span>${p.origin || '—'}</span></li>
+        <li><span>Kavurma</span><span>${p.roast || '—'}</span></li>
+        <li><span>Tazelik</span><span>Kavurmadan 48 saat içinde sevkiyat</span></li>
+      `;
+      document.getElementById('pd-qty-val').textContent = modalQty;
+      document.getElementById('pd-overlay').classList.add('active');
+      document.getElementById('pd-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeProductModal() {
+      document.getElementById('pd-overlay').classList.remove('active');
+      document.getElementById('pd-modal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function initProductModal() {
+      document.getElementById('pd-close').addEventListener('click', closeProductModal);
+      document.getElementById('pd-overlay').addEventListener('click', closeProductModal);
+      document.getElementById('pd-qty-minus').addEventListener('click', () => {
+        modalQty = Math.max(1, modalQty - 1);
+        document.getElementById('pd-qty-val').textContent = modalQty;
+      });
+      document.getElementById('pd-qty-plus').addEventListener('click', () => {
+        modalQty = Math.min(99, modalQty + 1);
+        document.getElementById('pd-qty-val').textContent = modalQty;
+      });
+      document.getElementById('pd-add').addEventListener('click', () => {
+        if (modalProduct) { addToCart(modalProduct, modalQty); closeProductModal(); }
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          closeProductModal();
+          document.getElementById('cart-overlay').classList.remove('active');
+          document.getElementById('cart-sidebar').classList.remove('active');
+        }
+      });
+    }
+
     function renderProducts() {
-      document.getElementById('products-grid').innerHTML = products.map(p => {
-        const safeN = p.name.replace(/'/g,"\\'");
-        const thumbImg = p.img.replace('w=600','w=200');
-        return '<div class="product-card">'
-          + (p.badge ? '<div class="product-badge badge-'+ p.badge +'">'+(p.badge==='new'?'Yeni':'Çok Satan')+'</div>' : '')
-          + '<div class="product-img-wrap"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy">'
-          + '<div class="quick-add"><button onclick="addToCart({name:\''+safeN+'\',price:'+p.price+',img:\''+thumbImg+'\'})">Sepete Ekle</button></div></div>'
-          + '<div class="product-info"><div class="product-cat">'+p.cat+'</div><div class="product-name">'+p.name+'</div>'
-          + '<div class="product-desc">'+p.desc+'</div><div class="product-bottom"><span class="product-price">₺'+p.price+'</span><span class="product-weight">'+p.weight+'</span></div></div></div>';
-      }).join('');
+      document.getElementById('products-grid').innerHTML = products.map(p =>
+        `<div class="product-card" data-id="${p.id}" data-cat="${p.cat}">
+          ${p.badge ? `<div class="product-badge badge-${p.badge}">${p.badge==='new'?'Yeni':'Çok Satan'}</div>` : ''}
+          <div class="product-img-wrap">
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <div class="quick-add"><button class="qa-btn" data-id="${p.id}">Sepete Ekle</button></div>
+          </div>
+          <div class="product-info">
+            <div class="product-cat">${p.cat}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-desc">${p.desc}</div>
+            <div class="product-bottom">
+              <span class="product-price">₺${p.price}</span>
+              <span class="product-weight">${p.weight}</span>
+            </div>
+          </div>
+        </div>`
+      ).join('');
+
+      document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const p = products.find(x => x.id === card.dataset.id);
+          if (p) openProductModal(p);
+        });
+      });
+      document.querySelectorAll('.qa-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const p = products.find(x => x.id === btn.dataset.id);
+          if (p) addToCart(p);
+        });
+      });
     }
 
     /* ═══════════════════════════════════════
@@ -880,7 +1163,9 @@
       initOriginScroll();
       initRoastScene();
       initGrindScene();
+      renderFilters();
       renderProducts();
+      initProductModal();
       initProductsReveal();
       initCart();
       initProgress();
@@ -907,77 +1192,191 @@
     }
 
     /* ═══════════════════════════════════════
-       THREE.JS HERO — floating particles & beans
+       THREE.JS HERO — central bean + orbital ring + scroll-driven explosion
     ═══════════════════════════════════════ */
     function initThreeHero() {
       const canvas = document.getElementById('hero-canvas');
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
-      camera.position.z = 6;
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0, 6.5);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      const ambient = new THREE.AmbientLight(0xc8956c, 0.4);
-      scene.add(ambient);
-      const pt1 = new THREE.PointLight(0xc8956c, 1.2, 20);
-      pt1.position.set(4,3,5);
-      scene.add(pt1);
-      const pt2 = new THREE.PointLight(0x3c2415, 0.8, 15);
-      pt2.position.set(-3,-2,4);
-      scene.add(pt2);
+      // ── Lighting (high contrast, cinematic) ──
+      scene.add(new THREE.AmbientLight(0xffffff, 0.16));
+      const key = new THREE.PointLight(0xffd8a8, 1.4, 40);
+      key.position.set(5, 4, 7);
+      scene.add(key);
+      const fill = new THREE.PointLight(0x4a6080, 0.45, 25);
+      fill.position.set(-4, -2, 4);
+      scene.add(fill);
+      const rim = new THREE.PointLight(0xffe4b8, 0.55, 30);
+      rim.position.set(-2, 3, -4);
+      scene.add(rim);
 
-      // Beans
-      const beans = [];
-      const ct = window.innerWidth < 768 ? 12 : 25;
-      for (let i = 0; i < ct; i++) {
-        const g = new THREE.SphereGeometry(0.1, 12, 10);
+      // ── Bean geometry helper (returns squashed sphere) ──
+      function createBeanGeo(size) {
+        const g = new THREE.SphereGeometry(size, 18, 14);
         const pos = g.attributes.position;
-        for (let j = 0; j < pos.count; j++) {
-          pos.setX(j, pos.getX(j) * 1.7);
-          pos.setZ(j, pos.getZ(j) * 1.3);
+        for (let i = 0; i < pos.count; i++) {
+          pos.setX(i, pos.getX(i) * 0.62);
+          pos.setZ(i, pos.getZ(i) * 0.42);
         }
         g.computeVertexNormals();
-        const s = 0.25 + Math.random() * 0.5;
-        const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(s*0.4, s*0.22, s*0.1), roughness:0.75, metalness:0.05 });
-        const mesh = new THREE.Mesh(g, m);
-        mesh.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*8, (Math.random()-0.5)*6 - 2);
-        mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-        scene.add(mesh);
-        beans.push({ mesh, rx:(Math.random()-0.5)*0.006, ry:(Math.random()-0.5)*0.008, spd:0.2+Math.random()*0.4, off:Math.random()*6.28, by:mesh.position.y });
+        return g;
+      }
+      function makeBeanMat() {
+        const s = 0.35 + Math.random() * 0.45;
+        return new THREE.MeshStandardMaterial({
+          color: new THREE.Color(s * 0.5, s * 0.27, s * 0.12),
+          roughness: 0.78, metalness: 0.05,
+        });
       }
 
-      // Particles
+      // ── Central core bean (large, draws focus) ──
+      const core = new THREE.Mesh(
+        createBeanGeo(0.55),
+        new THREE.MeshStandardMaterial({ color: 0x4a2814, roughness: 0.65, metalness: 0.12 })
+      );
+      // Crease line as a thin dark ring
+      scene.add(core);
+
+      // ── Orbital ring (beans on a torus) ──
+      const ringBeans = [];
+      const ringR = 2.2, ringT = 0.45;
+      const ringCount = window.innerWidth < 768 ? 28 : 60;
+      for (let i = 0; i < ringCount; i++) {
+        const u = (i / ringCount) * Math.PI * 2;
+        const v = Math.random() * Math.PI * 2;
+        const sz = 0.085 + Math.random() * 0.075;
+        const m = new THREE.Mesh(createBeanGeo(sz), makeBeanMat());
+        m.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+        ringBeans.push({
+          mesh: m, u, v, sz,
+          rx: (Math.random()-0.5) * 0.012,
+          ry: (Math.random()-0.5) * 0.012,
+          vSpd: 0.3 + Math.random() * 0.4,
+        });
+        scene.add(m);
+      }
+
+      // ── Scattered far beans (depth/atmosphere) ──
+      const farBeans = [];
+      const farCount = window.innerWidth < 768 ? 12 : 28;
+      for (let i = 0; i < farCount; i++) {
+        const sz = 0.07 + Math.random() * 0.08;
+        const m = new THREE.Mesh(createBeanGeo(sz), makeBeanMat());
+        m.position.set(
+          (Math.random() - 0.5) * 16,
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 6 - 4
+        );
+        m.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+        farBeans.push({
+          mesh: m,
+          rx: (Math.random()-0.5) * 0.006,
+          ry: (Math.random()-0.5) * 0.008,
+          baseY: m.position.y, off: Math.random() * 6.28,
+          spd: 0.2 + Math.random() * 0.35,
+        });
+        scene.add(m);
+      }
+
+      // ── Particles (dust) ──
+      const pCount = window.innerWidth < 768 ? 100 : 220;
       const pGeo = new THREE.BufferGeometry();
-      const pCount = 150;
-      const pPos = new Float32Array(pCount*3);
-      for (let i=0;i<pCount;i++) { pPos[i*3]=(Math.random()-0.5)*16; pPos[i*3+1]=(Math.random()-0.5)*12; pPos[i*3+2]=(Math.random()-0.5)*8-3; }
-      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
-      const pMat = new THREE.PointsMaterial({ color:0xc8956c, size:0.015, transparent:true, opacity:0.25, blending:THREE.AdditiveBlending });
+      const pPos = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount; i++) {
+        pPos[i*3]   = (Math.random() - 0.5) * 18;
+        pPos[i*3+1] = (Math.random() - 0.5) * 12;
+        pPos[i*3+2] = (Math.random() - 0.5) * 8 - 2;
+      }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0xc8956c, size: 0.02, transparent: true, opacity: 0.35,
+        blending: THREE.AdditiveBlending,
+      });
       const pts = new THREE.Points(pGeo, pMat);
       scene.add(pts);
 
-      let mx=0, my=0;
-      window.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-0.5)*2; my=(e.clientY/window.innerHeight-0.5)*2; });
+      // ── Mouse + scroll state ──
+      let mx = 0, my = 0;
+      window.addEventListener('mousemove', e => {
+        mx = (e.clientX / window.innerWidth - 0.5) * 2;
+        my = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
 
-      let t=0;
+      let scrollProgress = 0;
+      ScrollTrigger.create({
+        trigger: '#scene-hero', start: 'top top', end: 'bottom top',
+        scrub: 0.6,
+        onUpdate: self => { scrollProgress = self.progress; }
+      });
+
+      // ── Animation loop ──
+      let t = 0, ringRot = 0;
       (function anim() {
         requestAnimationFrame(anim);
-        t+=0.008;
-        beans.forEach(b => { b.mesh.rotation.x+=b.rx; b.mesh.rotation.y+=b.ry; b.mesh.position.y=b.by+Math.sin(t*b.spd+b.off)*0.25; });
+        t += 0.008;
+
+        // Core bean: rotate continuously + scale up slightly with scroll
+        core.rotation.y += 0.006;
+        core.rotation.z = Math.sin(t * 0.4) * 0.08;
+        const coreScale = 1 + scrollProgress * 0.6;
+        core.scale.setScalar(coreScale);
+
+        // Ring beans: orbital motion + scroll-driven explosion outward
+        ringRot += 0.0014;
+        const explode = scrollProgress * 5;
+        ringBeans.forEach(b => {
+          const u = b.u + ringRot;
+          const v = b.v + t * b.vSpd * 0.3;
+          const r = ringR + ringT * Math.cos(v);
+          const baseX = r * Math.cos(u);
+          const baseY = r * Math.sin(u) * 0.55;  // flatten ring slightly
+          const baseZ = ringT * Math.sin(v);
+          // Outward explosion direction
+          const len = Math.sqrt(baseX*baseX + baseY*baseY + baseZ*baseZ);
+          const nx = baseX / len, ny = baseY / len, nz = baseZ / len;
+          b.mesh.position.set(
+            baseX + nx * explode,
+            baseY + ny * explode,
+            baseZ + nz * explode
+          );
+          b.mesh.rotation.x += b.rx;
+          b.mesh.rotation.y += b.ry;
+        });
+
+        // Far beans: gentle float
+        farBeans.forEach(b => {
+          b.mesh.rotation.x += b.rx;
+          b.mesh.rotation.y += b.ry;
+          b.mesh.position.y = b.baseY + Math.sin(t * b.spd + b.off) * 0.3;
+        });
+
+        // Particles
         const pp = pts.geometry.attributes.position;
-        for (let i=0;i<pCount;i++) { pp.array[i*3+1]+=0.002; if(pp.array[i*3+1]>6) pp.array[i*3+1]=-6; }
-        pp.needsUpdate=true;
-        camera.position.x+=(mx*0.25-camera.position.x)*0.02;
-        camera.position.y+=(-my*0.15-camera.position.y)*0.02;
-        camera.lookAt(0,0,0);
-        renderer.render(scene,camera);
+        for (let i = 0; i < pCount; i++) {
+          pp.array[i*3+1] += 0.0025;
+          if (pp.array[i*3+1] > 6) pp.array[i*3+1] = -6;
+        }
+        pp.needsUpdate = true;
+
+        // Camera parallax (stronger, with scroll-driven push-back)
+        const camZBase = 6.5 + scrollProgress * 2;
+        camera.position.x += (mx * 0.55 - camera.position.x) * 0.025;
+        camera.position.y += (-my * 0.35 - camera.position.y) * 0.025;
+        camera.position.z += (camZBase - camera.position.z) * 0.05;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
       })();
 
       window.addEventListener('resize', () => {
-        camera.aspect=window.innerWidth/window.innerHeight;
+        camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth,window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
       });
     }
 
@@ -1506,8 +1905,8 @@
 
         // Subtle camera parallax
         camera.position.x += (mx * 0.3 - camera.position.x) * 0.05;
-        camera.position.y += (0.5 - my * 0.2 - camera.position.y) * 0.05;
-        camera.lookAt(0, 0.4, 0);
+        camera.position.y += (1.4 - my * 0.25 - camera.position.y) * 0.05;
+        camera.lookAt(0, -0.05, 0);
 
         // Steam rise
         const t = performance.now() * 0.001;
