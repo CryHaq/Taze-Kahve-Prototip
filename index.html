@@ -120,7 +120,7 @@
     .nav-toggle.active span:nth-child(2) { opacity: 0; }
     .nav-toggle.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       nav { padding: var(--space-md) var(--space-lg); mix-blend-mode: normal; }
       .nav-right { gap: var(--space-md); }
       .nav-toggle { display: flex; }
@@ -140,8 +140,10 @@
         transition: opacity 0.5s, transform 0.5s var(--ease-out-expo);
       }
       .nav-links.active a { opacity: 1; transform: translateY(0); }
-      .nav-links.active a:nth-child(1) { transition-delay: 0.15s; }
-      .nav-links.active a:nth-child(2) { transition-delay: 0.22s; }
+      .nav-links.active a:nth-child(1) { transition-delay: 0.1s; }
+      .nav-links.active a:nth-child(2) { transition-delay: 0.17s; }
+      .nav-links.active a:nth-child(3) { transition-delay: 0.24s; }
+      .nav-links.active a:nth-child(4) { transition-delay: 0.31s; }
     }
 
     .progress-bar {
@@ -754,6 +756,147 @@
       .toast { left: var(--space-md); right: var(--space-md); bottom: var(--space-md); }
     }
 
+    /* ══════ STATS BRIDGE ══════ */
+    #scene-stats {
+      min-height: auto; padding: var(--space-3xl) var(--space-xl);
+      position: relative; overflow: hidden; background: var(--bg-dark);
+    }
+    .stats-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 50%, rgba(200,149,108,0.04) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 80% 50%, rgba(107,143,78,0.03) 0%, transparent 60%);
+    }
+    .stats-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .stats-eyebrow {
+      text-align: center; margin-bottom: var(--space-2xl);
+    }
+    .stats-eyebrow h2 {
+      font-size: clamp(2.2rem, 4.5vw, 3.5rem); color: var(--cream); margin-bottom: var(--space-md);
+    }
+    .stats-eyebrow h2 em { font-style: italic; color: var(--gold); }
+    .stats-eyebrow p { color: var(--cream-dim); font-size: 1rem; max-width: 520px; margin: 0 auto; }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-xl);
+    }
+    .stat-item {
+      text-align: center; padding: var(--space-xl) var(--space-md); position: relative;
+    }
+    .stat-item::after {
+      content: ''; position: absolute; top: 20%; right: 0; height: 60%; width: 1px;
+      background: rgba(200,149,108,0.1);
+    }
+    .stat-item:last-child::after { display: none; }
+    .stat-icon { color: var(--gold-dim); margin-bottom: var(--space-md); opacity: 0.7; }
+    .stat-number {
+      font-family: 'Instrument Serif', serif; font-size: clamp(2.5rem, 5vw, 4rem);
+      color: var(--gold); line-height: 1; margin-bottom: var(--space-sm);
+    }
+    .stat-label { font-size: 0.85rem; color: var(--cream-dim); line-height: 1.5; }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
+      .stat-item:nth-child(2)::after { display: none; }
+    }
+    @media (max-width: 480px) {
+      #scene-stats { padding: var(--space-2xl) var(--space-lg); }
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat-item::after { display: none; }
+      .stat-item { padding: var(--space-md); }
+    }
+
+    /* ══════ TESTIMONIALS ══════ */
+    #scene-testimonials {
+      min-height: auto; padding: var(--space-3xl) var(--space-xl);
+      background: var(--bg-deep); position: relative; overflow: hidden;
+    }
+    .testimonials-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 40% at 50% 30%, rgba(200,149,108,0.03), transparent);
+    }
+    .testimonials-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .testimonials-header { text-align: center; margin-bottom: var(--space-2xl); }
+    .testimonials-header h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem); color: var(--cream); margin-bottom: var(--space-md);
+    }
+    .testimonials-header h2 em { font-style: italic; color: var(--gold); }
+    .testimonials-header p { color: var(--cream-dim); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+    .testimonials-track {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg);
+    }
+    .testimonial-card {
+      background: var(--bg-surface); border: 1px solid rgba(200,149,108,0.06);
+      padding: var(--space-xl); position: relative;
+      transition: transform 0.5s var(--ease-spring), border-color 0.4s,
+        box-shadow 0.4s;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-6px); border-color: rgba(200,149,108,0.15);
+      box-shadow: 0 8px 24px rgba(var(--shadow-color),0.15), 0 24px 48px rgba(var(--shadow-color),0.1);
+    }
+    .testimonial-stars { display: flex; gap: 2px; margin-bottom: var(--space-md); }
+    .testimonial-stars svg { color: var(--gold); width: 14px; height: 14px; }
+    .testimonial-quote {
+      font-size: 0.95rem; color: var(--cream-dim); line-height: 1.8;
+      margin-bottom: var(--space-lg); position: relative; padding-left: var(--space-lg);
+    }
+    .testimonial-quote::before {
+      content: '\201C'; position: absolute; left: 0; top: -8px;
+      font-family: 'Instrument Serif', serif; font-size: 3rem;
+      color: var(--gold-dim); line-height: 1;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: var(--space-md); }
+    .testimonial-avatar {
+      width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+      border: 2px solid rgba(200,149,108,0.15);
+    }
+    .testimonial-name { font-size: 0.9rem; color: var(--cream); font-weight: 500; }
+    .testimonial-role { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    @media (max-width: 768px) {
+      .testimonials-track { grid-template-columns: 1fr; gap: var(--space-md); }
+      #scene-testimonials { padding: var(--space-2xl) var(--space-lg); }
+    }
+
+    /* ══════ FAQ ══════ */
+    #scene-faq {
+      min-height: auto; padding: var(--space-3xl) var(--space-xl);
+      background: var(--bg-surface); position: relative;
+    }
+    .faq-inner { max-width: 760px; margin: 0 auto; }
+    .faq-header { text-align: center; margin-bottom: var(--space-2xl); }
+    .faq-header h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem); color: var(--cream); margin-bottom: var(--space-md);
+    }
+    .faq-header h2 em { font-style: italic; color: var(--gold); }
+    .faq-header p { color: var(--cream-dim); font-size: 1rem; max-width: 480px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid rgba(200,149,108,0.08); }
+    .faq-question {
+      width: 100%; background: none; border: none; padding: var(--space-lg) 0;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; color: var(--cream); font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 500; text-align: left; gap: var(--space-md);
+      transition: color 0.3s;
+    }
+    .faq-question:hover { color: var(--gold); }
+    .faq-question:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    .faq-icon {
+      width: 24px; height: 24px; flex-shrink: 0; color: var(--gold-dim);
+      transition: transform 0.4s var(--ease-spring), color 0.3s;
+    }
+    .faq-item.active .faq-icon { transform: rotate(45deg); color: var(--gold); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.5s var(--ease-out-expo); }
+    .faq-answer-inner {
+      padding: 0 0 var(--space-lg); color: var(--cream-dim);
+      font-size: 0.92rem; line-height: 1.8;
+    }
+    @media (max-width: 640px) {
+      #scene-faq { padding: var(--space-2xl) var(--space-lg); }
+    }
+
+    /* ══════ SECTION TRANSITIONS ══════ */
+    .section-fade-in {
+      opacity: 0; transform: translateY(50px);
+    }
+
     /* ══════ REDUCED MOTION ══════ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -781,8 +924,10 @@
     <a href="#" class="nav-logo">Kaphi<em>.</em></a>
     <div class="nav-right">
       <div class="nav-links" id="nav-links">
-        <a href="#scene-products">Ürünler</a>
         <a href="#scene-origin">Hikaye</a>
+        <a href="#scene-products">Ürünler</a>
+        <a href="#scene-testimonials">Referanslar</a>
+        <a href="#scene-faq">SSS</a>
       </div>
       <div class="nav-cart" id="cart-toggle" role="button" tabindex="0" aria-label="Sepet">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -956,6 +1101,50 @@
   </section>
 
   <!-- ═══════════════════════════════════════
+       STATS BRIDGE — Story → Commerce Transition
+  ═══════════════════════════════════════ -->
+  <section id="scene-stats">
+    <div class="stats-bg"></div>
+    <div class="stats-inner">
+      <div class="stats-eyebrow section-fade-in">
+        <div class="section-label">Rakamlarla Kaphi</div>
+        <h2>30 yılın <em>tutkusu</em></h2>
+        <p>Çekirdekten fincana her adımda mükemmelliği hedefliyoruz.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item section-fade-in">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+          <div class="stat-number"><span class="counter" data-target="12">0</span></div>
+          <div class="stat-label">Ülkeden Doğrudan<br>Çiftçi İlişkisi</div>
+        </div>
+        <div class="stat-item section-fade-in">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="stat-number"><span class="counter" data-target="50000" data-suffix="+">0</span></div>
+          <div class="stat-label">Mutlu Müşteri<br>Türkiye Geneli</div>
+        </div>
+        <div class="stat-item section-fade-in">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <div class="stat-number"><span class="counter" data-target="80" data-prefix="SCA " data-suffix="+">0</span></div>
+          <div class="stat-label">Cupping Puanı<br>Minimum Garanti</div>
+        </div>
+        <div class="stat-item section-fade-in">
+          <div class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-number"><span class="counter" data-target="48" data-suffix=" Saat">0</span></div>
+          <div class="stat-label">Kavurmadan Kargoya<br>Maksimum Süre</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
        SCENE 5: PRODUCTS
   ═══════════════════════════════════════ -->
   <section id="scene-products" class="scene">
@@ -995,6 +1184,133 @@
       </div>
     </div>
   </aside>
+
+  <!-- ═══════════════════════════════════════
+       TESTIMONIALS
+  ═══════════════════════════════════════ -->
+  <section id="scene-testimonials">
+    <div class="testimonials-bg"></div>
+    <div class="testimonials-inner">
+      <div class="testimonials-header section-fade-in">
+        <div class="section-label">Müşterilerimiz</div>
+        <h2>Onlar <em>deneyimledi</em></h2>
+        <p>Binlerce kahve sever Kaphi farkını keşfetti.</p>
+      </div>
+      <div class="testimonials-track">
+        <div class="testimonial-card section-fade-in">
+          <div class="testimonial-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <div class="testimonial-quote">Yıllardır farklı markalar denedim, Kaphi ile tanıştıktan sonra başka kahve alamaz oldum. Yirgacheffe'leri inanılmaz taze ve aromatik geliyor.</div>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Elif Yılmaz" loading="lazy">
+            <div>
+              <div class="testimonial-name">Elif Yılmaz</div>
+              <div class="testimonial-role">Barista, İstanbul</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card section-fade-in">
+          <div class="testimonial-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <div class="testimonial-quote">Kafemizde Kaphi'nin Horeca Espresso Blend'ini kullanıyoruz. Müşterilerimiz espressolarımızın kalitesindeki farkı hemen fark etti. Toptan hizmet de çok profesyonel.</div>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Murat Kaya" loading="lazy">
+            <div>
+              <div class="testimonial-name">Murat Kaya</div>
+              <div class="testimonial-role">Kafe Sahibi, Ankara</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card section-fade-in">
+          <div class="testimonial-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg>
+          </div>
+          <div class="testimonial-quote">Kavurma tarihini paketin üzerinde görebilmek büyük güven veriyor. Siparişim her zaman 2 gün içinde elime ulaşıyor. Türk kahvesi klasikleri muhteşem.</div>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Zeynep Demir" loading="lazy">
+            <div>
+              <div class="testimonial-name">Zeynep Demir</div>
+              <div class="testimonial-role">Kahve Tutkunu, İzmir</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FAQ
+  ═══════════════════════════════════════ -->
+  <section id="scene-faq">
+    <div class="faq-inner">
+      <div class="faq-header section-fade-in">
+        <div class="section-label">Sıkça Sorulanlar</div>
+        <h2>Merak <em>edilenler</em></h2>
+        <p>Kahve yolculuğunuz hakkında en çok sorulan sorular.</p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item section-fade-in">
+          <button class="faq-question" aria-expanded="false">
+            Kahveleriniz ne kadar taze?
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Tüm kahvelerimiz sipariş bazlı kavrulur ve kavurma tarihinden itibaren maksimum 48 saat içinde kargoya verilir. Nitrojen dolumlu özel ambalajlarımız tazeliği 3 ay boyunca korur. Her paketin üzerinde kavurma tarihi ve lot numarası yer alır.</div>
+          </div>
+        </div>
+        <div class="faq-item section-fade-in">
+          <button class="faq-question" aria-expanded="false">
+            Kargo süresi ne kadar?
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">İstanbul içi siparişler aynı gün veya ertesi gün teslim edilir. Türkiye genelinde ise ortalama 1-3 iş günü içinde kapınızda. 250₺ üzeri siparişlerde kargo ücretsizdir.</div>
+          </div>
+        </div>
+        <div class="faq-item section-fade-in">
+          <button class="faq-question" aria-expanded="false">
+            Hangi ödeme yöntemlerini kabul ediyorsunuz?
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Kredi kartı, banka kartı, havale/EFT ve kapıda ödeme seçeneklerimiz mevcuttur. Kredi kartına 3-6 taksit imkânı sunuyoruz. Tüm ödemeler 256-bit SSL ile güvence altındadır.</div>
+          </div>
+        </div>
+        <div class="faq-item section-fade-in">
+          <button class="faq-question" aria-expanded="false">
+            Kahve öğütme derecesini seçebilir miyim?
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Evet! Sipariş sırasında çekirdek, french press, filtre, espresso veya Türk kahvesi öğütme derecelerinden birini seçebilirsiniz. En taze deneyim için çekirdek olarak almanızı ve demleme öncesi öğütmenizi öneririz.</div>
+          </div>
+        </div>
+        <div class="faq-item section-fade-in">
+          <button class="faq-question" aria-expanded="false">
+            Toptan veya kurumsal sipariş verebilir miyim?
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Kesinlikle. Kafeler, restoranlar, oteller ve ofisler için özel Horeca programımız bulunmaktadır. Private label hizmeti de sunuyoruz. Detaylı bilgi için toptan@kaphikahve.com adresinden bize ulaşabilirsiniz.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- CTA -->
   <section class="cta-section">
@@ -1276,6 +1592,9 @@
       renderProducts();
       initProductModal();
       initProductsReveal();
+      initStats();
+      initFaq();
+      initScrollReveals();
       initCart();
       initNav();
       initProgress();
@@ -2082,6 +2401,102 @@
       gsap.from('.cta-inner', {
         scrollTrigger: { trigger: '.cta-inner', start: 'top 85%', once: true },
         y: 50, opacity: 0, duration: 0.8, ease: 'power3.out'
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       STATS — Counter Animation (anime.js)
+    ═══════════════════════════════════════ */
+    function initStats() {
+      const counters = document.querySelectorAll('.counter');
+      let statsAnimated = false;
+
+      ScrollTrigger.create({
+        trigger: '#scene-stats',
+        start: 'top 75%',
+        once: true,
+        onEnter: () => {
+          if (statsAnimated) return;
+          statsAnimated = true;
+
+          counters.forEach((el, i) => {
+            const target = parseInt(el.dataset.target);
+            const prefix = el.dataset.prefix || '';
+            const suffix = el.dataset.suffix || '';
+            const obj = { val: 0 };
+
+            anime({
+              targets: obj,
+              val: target,
+              round: 1,
+              duration: target > 1000 ? 2200 : 1600,
+              delay: i * 150,
+              easing: 'easeOutExpo',
+              update: () => {
+                const formatted = target >= 1000 ? obj.val.toLocaleString('tr-TR') : obj.val;
+                el.textContent = prefix + formatted + suffix;
+              }
+            });
+          });
+        }
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       FAQ — Accordion
+    ═══════════════════════════════════════ */
+    function initFaq() {
+      document.querySelectorAll('.faq-question').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = btn.parentElement;
+          const answer = item.querySelector('.faq-answer');
+          const inner = answer.querySelector('.faq-answer-inner');
+          const isActive = item.classList.contains('active');
+
+          // Close all others
+          document.querySelectorAll('.faq-item.active').forEach(other => {
+            if (other !== item) {
+              other.classList.remove('active');
+              other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+              other.querySelector('.faq-answer').style.maxHeight = '0';
+            }
+          });
+
+          item.classList.toggle('active', !isActive);
+          btn.setAttribute('aria-expanded', !isActive ? 'true' : 'false');
+          answer.style.maxHeight = !isActive ? inner.scrollHeight + 'px' : '0';
+        });
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL REVEALS — anime.js powered
+    ═══════════════════════════════════════ */
+    function initScrollReveals() {
+      const revealEls = document.querySelectorAll('.section-fade-in');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            anime({
+              targets: entry.target,
+              opacity: [0, 1],
+              translateY: [50, 0],
+              duration: 900,
+              delay: parseInt(entry.target.dataset.delay || 0),
+              easing: 'easeOutExpo',
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      revealEls.forEach(el => {
+        const parent = el.parentElement;
+        const siblings = parent.querySelectorAll('.section-fade-in');
+        const idx = Array.from(siblings).indexOf(el);
+        el.dataset.delay = idx * 100;
+        observer.observe(el);
       });
     }
 
