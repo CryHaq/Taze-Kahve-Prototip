@@ -386,7 +386,11 @@
     /* ══════ SCENE 5: PRODUCTS ══════ */
     #scene-products {
       min-height: auto; padding: var(--space-3xl) var(--space-xl);
-      background: var(--bg-surface); position: relative;
+      background:
+        radial-gradient(ellipse 40% 30% at 80% 20%, rgba(200,149,108,0.025), transparent),
+        radial-gradient(ellipse 30% 40% at 10% 80%, rgba(107,143,78,0.015), transparent),
+        var(--bg-surface);
+      position: relative;
     }
     #scene-products::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
@@ -879,6 +883,13 @@
         radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,149,108,0.05), transparent),
         radial-gradient(ellipse 30% 50% at 70% 60%, rgba(107,143,78,0.03), transparent);
     }
+    .story-bridge::after {
+      content: ''; position: absolute;
+      width: 400px; height: 400px; border-radius: 50%;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      border: 1px solid rgba(200,149,108,0.04);
+      pointer-events: none;
+    }
     .story-bridge-content {
       position: relative; z-index: 1; text-align: center;
       padding: 0 var(--space-xl); max-width: 800px;
@@ -1082,6 +1093,40 @@
     }
     @media (max-width: 640px) {
       #scene-faq { padding: var(--space-2xl) var(--space-lg); }
+    }
+
+    /* ══════ DECORATIVE ELEMENTS ══════ */
+    .deco-ring {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      border: 1px solid rgba(200,149,108,0.06);
+    }
+    /* Floating ring on stats section */
+    #scene-stats .deco-ring-1 {
+      width: 300px; height: 300px; top: -60px; right: -80px;
+    }
+    #scene-stats .deco-ring-2 {
+      width: 180px; height: 180px; bottom: -40px; left: -50px;
+      border-color: rgba(107,143,78,0.05);
+    }
+    /* Diagonal accent on testimonials */
+    #scene-testimonials::after {
+      content: ''; position: absolute; top: 60px; right: 0;
+      width: 200px; height: 1px; background: rgba(200,149,108,0.08);
+      transform: rotate(-25deg); transform-origin: right;
+    }
+    /* Corner accent on FAQ */
+    #scene-faq::after {
+      content: ''; position: absolute; bottom: var(--space-xl); right: var(--space-xl);
+      width: 80px; height: 80px; pointer-events: none;
+      border-right: 1px solid rgba(200,149,108,0.06);
+      border-bottom: 1px solid rgba(200,149,108,0.06);
+    }
+    /* Dot grid pattern on CTA */
+    .cta-dots {
+      position: absolute; top: var(--space-xl); left: var(--space-xl);
+      width: 100px; height: 100px; pointer-events: none; opacity: 0.3;
+      background-image: radial-gradient(rgba(200,149,108,0.15) 1px, transparent 1px);
+      background-size: 12px 12px;
     }
 
     /* ══════ SECTION TRANSITIONS ══════ */
@@ -1318,6 +1363,8 @@
   ═══════════════════════════════════════ -->
   <section id="scene-stats" class="seam-top">
     <div class="stats-bg"></div>
+    <div class="deco-ring deco-ring-1"></div>
+    <div class="deco-ring deco-ring-2"></div>
     <div class="stats-inner">
       <div class="stats-eyebrow section-fade-in">
         <div class="section-label">Rakamlarla Kaphi</div>
@@ -1527,6 +1574,7 @@
 
   <!-- CTA -->
   <section class="cta-section">
+    <div class="cta-dots"></div>
     <div class="cta-inner">
       <h2>İlk siparişe <em>özel</em> %15 indirim</h2>
       <p>Kaphi Kahve dünyasına adım atın. Gerçek tutkuyu keşfedin.</p>
