@@ -546,29 +546,39 @@
       transition: transform 0.5s var(--ease-spring), border-color 0.4s, box-shadow 0.4s;
     }
     .product-card:hover {
-      transform: translateY(-10px);
-      border-color: rgba(200,149,108,0.15);
-      box-shadow: 0 8px 16px rgba(var(--shadow-color),0.15), 0 24px 48px rgba(var(--shadow-color),0.12);
+      transform: translateY(-8px);
+      border-color: rgba(200,149,108,0.18);
+      box-shadow:
+        0 2px 4px rgba(var(--shadow-color),0.06),
+        0 8px 16px rgba(var(--shadow-color),0.1),
+        0 24px 48px rgba(var(--shadow-color),0.15);
     }
 
     .product-badge {
       position: absolute; top: var(--space-md); left: var(--space-md); z-index: 2;
-      padding: 4px 12px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 5px 14px; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; backdrop-filter: blur(8px);
     }
-    .badge-new { background: var(--gold); color: var(--bg-deep); }
-    .badge-best { background: #c0392b; color: #fff; }
+    .badge-new {
+      background: rgba(200,149,108,0.9); color: var(--bg-deep);
+      box-shadow: 0 2px 8px rgba(200,149,108,0.3);
+    }
+    .badge-best {
+      background: rgba(192,57,43,0.9); color: #fff;
+      box-shadow: 0 2px 8px rgba(192,57,43,0.3);
+    }
 
     .product-img-wrap {
       position: relative; aspect-ratio: 1; overflow: hidden; background: var(--bg-surface);
     }
     .product-img-wrap img {
       width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.6s var(--ease-out-expo);
+      transition: transform 0.7s var(--ease-out-expo), filter 0.5s;
     }
-    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+    .product-card:hover .product-img-wrap img { transform: scale(1.06); filter: brightness(1.05); }
     .product-img-wrap::after {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(30,22,13,0.5), transparent 40%);
+      background: linear-gradient(to top, rgba(30,22,13,0.6) 0%, rgba(30,22,13,0.1) 30%, transparent 50%);
     }
 
     .quick-add {
@@ -578,22 +588,37 @@
     }
     .product-card:hover .quick-add { transform: translateY(0); }
     .quick-add button {
-      width: 100%; padding: 12px; background: var(--gold); border: none;
-      color: var(--bg-deep); font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+      width: 100%; padding: 13px; background: var(--gold); border: none;
+      color: var(--bg-deep); font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
       font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
       transition: background 0.3s, transform 0.2s var(--ease-spring);
     }
     .quick-add button:hover { background: var(--cream); }
     .quick-add button:active { transform: scale(0.97); }
     .quick-add button:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
 
-    .product-info { padding: var(--space-lg); }
-    .product-cat { font-size: 0.7rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: var(--space-xs); }
-    .product-name { font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--cream); margin-bottom: var(--space-sm); }
+    .product-info { padding: var(--space-lg) var(--space-lg) var(--space-md); }
+    .product-cat {
+      font-size: 0.65rem; color: var(--gold-dim); text-transform: uppercase;
+      letter-spacing: 0.14em; margin-bottom: var(--space-sm); font-weight: 500;
+    }
+    .product-name {
+      font-family: 'Instrument Serif', serif; font-size: 1.35rem; color: var(--cream);
+      margin-bottom: var(--space-sm); line-height: 1.2;
+      transition: color 0.3s;
+    }
+    .product-card:hover .product-name { color: var(--gold-light); }
     .product-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-md); line-height: 1.6; }
-    .product-bottom { display: flex; justify-content: space-between; align-items: center; }
-    .product-price { font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--gold); }
-    .product-weight { font-size: 0.75rem; color: var(--text-muted); }
+    .product-bottom {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding-top: var(--space-sm); border-top: 1px solid rgba(200,149,108,0.06);
+    }
+    .product-price { font-family: 'Instrument Serif', serif; font-size: 1.5rem; color: var(--gold); }
+    .product-weight {
+      font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.05em;
+      background: rgba(200,149,108,0.06); padding: 3px 10px;
+    }
 
     /* ══════ CTA ══════ */
     .cta-section {
@@ -1604,7 +1629,7 @@
           ${p.badge ? `<div class="product-badge badge-${p.badge}">${p.badge==='new'?'Yeni':'Çok Satan'}</div>` : ''}
           <div class="product-img-wrap">
             <img src="${p.img}" alt="${p.name}" loading="lazy">
-            <div class="quick-add"><button class="qa-btn" data-id="${p.id}">Sepete Ekle</button></div>
+            <div class="quick-add"><button class="qa-btn" data-id="${p.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="m1 1 4 2 2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Sepete Ekle</button></div>
           </div>
           <div class="product-info">
             <div class="product-cat">${p.cat}</div>
