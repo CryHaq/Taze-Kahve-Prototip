@@ -429,9 +429,29 @@
     .filter-chip:active { transform: scale(0.96); }
 
     .products-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: var(--space-lg);
       transition: opacity 0.25s ease;
+    }
+    /* Featured layout: first 2 cards span wider on desktop */
+    @media (min-width: 768px) {
+      .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .products-grid .product-card:first-child {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+      .products-grid .product-card:first-child .product-img-wrap {
+        aspect-ratio: 16/10;
+      }
+      .products-grid .product-card:first-child .product-name {
+        font-size: 1.6rem;
+      }
+      .products-grid .product-card:first-child .product-price {
+        font-size: 1.8rem;
+      }
     }
     .products-grid.changing { opacity: 0.3; }
     .product-card.hidden {
@@ -905,6 +925,9 @@
       font-family: 'Instrument Serif', serif; font-size: clamp(2.5rem, 5vw, 4rem);
       color: var(--gold); line-height: 1; margin-bottom: var(--space-sm);
     }
+    @media (min-width: 768px) {
+      .stat-item:first-child .stat-number { font-size: clamp(3rem, 6vw, 5rem); }
+    }
     .stat-label { font-size: 0.85rem; color: var(--cream-dim); line-height: 1.5; }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
@@ -935,6 +958,12 @@
     .testimonials-header p { color: var(--cream-dim); font-size: 1rem; max-width: 500px; margin: 0 auto; }
     .testimonials-track {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg);
+      align-items: start;
+    }
+    @media (min-width: 768px) {
+      .testimonials-track .testimonial-card:nth-child(2) {
+        transform: translateY(-24px);
+      }
     }
     .testimonial-card {
       background: var(--bg-surface); border: 1px solid rgba(200,149,108,0.06);
