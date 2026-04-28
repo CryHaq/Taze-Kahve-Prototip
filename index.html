@@ -1458,7 +1458,7 @@
           <div class="origin-num">01</div>
           <div class="origin-panel-inner">
             <div class="origin-visual">
-              <img src="https://images.unsplash.com/photo-1524350876685-274059332603?w=800&q=80" alt="Kahve çiftliği, yeşil kahve çekirdekleri hasatta" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1524350876685-274059332603?w=800&q=80" alt="Kahve çiftliği, yeşil kahve çekirdekleri hasatta" loading="lazy" width="800" height="1067">
             </div>
             <div class="origin-text">
               <div class="origin-label">Tedarik</div>
@@ -1480,7 +1480,7 @@
               <p>Aroma, asidite, gövde, tat, artçı tat — beş temel parametre üzerinden notlandırma yapılır. Sadece mükemmel olanlar kavurma aşamasına geçer.</p>
             </div>
             <div class="origin-visual" style="order:2;">
-              <img src="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=800&q=80" alt="Yeşil kahve çekirdekleri kalite kontrolde" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=800&q=80" alt="Yeşil kahve çekirdekleri kalite kontrolde" loading="lazy" width="800" height="1067">
             </div>
           </div>
         </div>
@@ -1490,7 +1490,7 @@
           <div class="origin-num">03</div>
           <div class="origin-panel-inner">
             <div class="origin-visual">
-              <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80" alt="Paketlenmiş kahve ürünleri sevkiyata hazır" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80" alt="Paketlenmiş kahve ürünleri sevkiyata hazır" loading="lazy" width="800" height="1067">
             </div>
             <div class="origin-text">
               <div class="origin-label">Kalite Güvencesi</div>
@@ -2356,10 +2356,13 @@
         onUpdate: self => { scrollProgress = self.progress; }
       });
 
-      // ── Animation loop ──
-      let t = 0, ringRot = 0;
+      // ── Animation loop (visibility-aware) ──
+      let t = 0, ringRot = 0, heroVisible = true;
+      const heroObs = new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }, { threshold: 0 });
+      heroObs.observe(document.getElementById('scene-hero'));
       (function anim() {
         requestAnimationFrame(anim);
+        if (!heroVisible) return;
         t += 0.008;
 
         // Core bean: rotate continuously + scale up slightly with scroll
@@ -2722,7 +2725,7 @@
         return new THREE.CanvasTexture(c);
       })();
 
-      const smokeCount = 60;
+      const smokeCount = window.innerWidth < 768 ? 30 : 60;
       const smokeGeo = new THREE.BufferGeometry();
       const smokePos = new Float32Array(smokeCount * 3);
       const smokeData = [];
@@ -2744,7 +2747,7 @@
       scene.add(smokePoints);
 
       // ── Gold burst particles (WOW moment on split) ──
-      const burstCount = 50;
+      const burstCount = window.innerWidth < 768 ? 25 : 50;
       const burstGeo = new THREE.BufferGeometry();
       const burstPos = new Float32Array(burstCount * 3);
       const burstData = [];
@@ -2868,9 +2871,13 @@
         my = ((e.clientY - r.top - r.height/2) / r.height) * 2;
       });
 
-      // ── Render loop ──
+      // ── Render loop (visibility-aware) ──
+      let roastVisible = false;
+      const roastObs = new IntersectionObserver(([e]) => { roastVisible = e.isIntersecting; }, { threshold: 0 });
+      roastObs.observe(document.getElementById('scene-roast'));
       function render() {
         requestAnimationFrame(render);
+        if (!roastVisible) return;
         // Mouse parallax adds subtle rotation on top of scroll-driven
         beanGroup.rotation.x += (-my * 0.18 - beanGroup.rotation.x) * 0.04;
 
@@ -2941,6 +2948,7 @@
 
       function draw() {
         requestAnimationFrame(draw);
+        if (!roastVisible) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         sparks.forEach(s => {
@@ -3145,9 +3153,13 @@
         my = ((e.clientY - r.top - r.height/2) / r.height) * 2;
       });
 
-      // Render loop
+      // Render loop (visibility-aware)
+      let cupVisible = false;
+      const cupObs = new IntersectionObserver(([e]) => { cupVisible = e.isIntersecting; }, { threshold: 0 });
+      cupObs.observe(document.getElementById('scene-grind'));
       function render() {
         requestAnimationFrame(render);
+        if (!cupVisible) return;
 
         // Subtle camera parallax
         camera.position.x += (mx * 0.3 - camera.position.x) * 0.05;
