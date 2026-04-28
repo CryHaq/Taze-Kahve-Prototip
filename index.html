@@ -115,8 +115,17 @@
     .nav-logo em { color: var(--gold); font-style: normal; }
     .nav-right { display: flex; align-items: center; gap: var(--space-xl); }
     .nav-links { display: flex; align-items: center; gap: var(--space-xl); }
-    .nav-links a { color: var(--cream-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
+    .nav-links a {
+      color: var(--cream-dim); text-decoration: none; font-size: 0.85rem;
+      transition: color 0.3s; position: relative; padding-bottom: 2px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.4s var(--ease-out-expo);
+    }
     .nav-links a:hover { color: var(--cream); }
+    .nav-links a:hover::after { width: 100%; }
     .nav-links a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
     .nav-toggle {
@@ -421,7 +430,11 @@
       letter-spacing: 0.08em; text-transform: uppercase;
       transition: color 0.3s, background 0.3s, border-color 0.3s, transform 0.2s var(--ease-spring);
     }
-    .filter-chip:hover { color: var(--cream); border-color: var(--gold-dim); }
+    .filter-chip:hover {
+      color: var(--cream); border-color: var(--gold-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(200,149,108,0.08);
+    }
     .filter-chip.active {
       background: var(--gold); color: var(--bg-deep); border-color: var(--gold);
     }
@@ -588,14 +601,16 @@
       background: var(--bg-elevated); border: 1px solid rgba(200,149,108,0.05);
       overflow: hidden; position: relative;
       transition: transform 0.5s var(--ease-spring), border-color 0.4s, box-shadow 0.4s;
+      transform-style: preserve-3d; perspective: 800px;
     }
     .product-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-8px) rotateX(2deg) rotateY(-1deg);
       border-color: rgba(200,149,108,0.18);
       box-shadow:
         0 2px 4px rgba(var(--shadow-color),0.06),
         0 8px 16px rgba(var(--shadow-color),0.1),
-        0 24px 48px rgba(var(--shadow-color),0.15);
+        0 24px 48px rgba(var(--shadow-color),0.15),
+        0 0 40px rgba(200,149,108,0.04);
     }
 
     .product-badge {
@@ -729,9 +744,21 @@
     .footer-social a {
       width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
       border: 1px solid rgba(200,149,108,0.12); color: var(--cream-dim);
-      transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-spring);
+      transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-spring),
+        background 0.3s;
+      position: relative; overflow: hidden;
     }
-    .footer-social a:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .footer-social a::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--gold); transform: translateY(100%);
+      transition: transform 0.35s var(--ease-out-expo);
+      z-index: 0;
+    }
+    .footer-social a:hover::before { transform: translateY(0); }
+    .footer-social a:hover {
+      border-color: var(--gold); color: var(--bg-deep); transform: translateY(-3px);
+    }
+    .footer-social a svg { position: relative; z-index: 1; }
     .footer-social a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
     .footer-col h4 {
@@ -740,8 +767,11 @@
     }
     .footer-col ul { list-style: none; }
     .footer-col ul li { margin-bottom: var(--space-sm); }
-    .footer-col ul a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
-    .footer-col ul a:hover { color: var(--gold); }
+    .footer-col ul a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+      transition: color 0.3s, padding-left 0.3s var(--ease-out-expo);
+    }
+    .footer-col ul a:hover { color: var(--gold); padding-left: 6px; }
     .footer-col ul a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
     .footer-bottom {
@@ -1017,7 +1047,20 @@
     }
     .faq-header h2 em { font-style: italic; color: var(--gold); }
     .faq-header p { color: var(--cream-dim); font-size: 1rem; max-width: 480px; margin: 0 auto; }
-    .faq-item { border-bottom: 1px solid rgba(200,149,108,0.08); }
+    .faq-item {
+      border-bottom: 1px solid rgba(200,149,108,0.08);
+      border-left: 2px solid transparent;
+      padding-left: var(--space-md);
+      transition: border-left-color 0.3s, background 0.3s;
+    }
+    .faq-item:hover {
+      border-left-color: var(--gold-dim);
+      background: rgba(200,149,108,0.015);
+    }
+    .faq-item.active {
+      border-left-color: var(--gold);
+      background: rgba(200,149,108,0.02);
+    }
     .faq-question {
       width: 100%; background: none; border: none; padding: var(--space-lg) 0;
       display: flex; justify-content: space-between; align-items: center;
