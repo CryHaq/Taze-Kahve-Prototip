@@ -2276,8 +2276,8 @@
           if (x > 0) x *= 1.03;
 
           // 5. Center crease / groove (the defining feature of a coffee bean)
-          const creaseDepth = 0.09;
-          const creaseWidth = 0.12;
+          const creaseDepth = 0.055;
+          const creaseWidth = 0.14;
           const absX = Math.abs(x);
           if (absX < creaseWidth) {
             const creaseFactor = 1 - (absX / creaseWidth);
@@ -2303,9 +2303,9 @@
           x += ridges * nx;
           z += ridges * nz;
 
-          // 8. Split halves for the cracking animation
-          if (side < 0) x = Math.min(x, 0.005);
-          else x = Math.max(x, -0.005);
+          // 8. Split halves — overlap slightly so no gap when closed
+          if (side < 0) x = Math.min(x, 0.01);
+          else x = Math.max(x, -0.01);
 
           pos.setXYZ(i, x, y, z);
         }
@@ -2351,9 +2351,41 @@
         bumpScale: 0.015,
       });
 
+      // Inner cap material (slightly darker, matte)
+      const capMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#5a7a3a'),
+        roughness: 0.95, metalness: 0.02, side: THREE.DoubleSide,
+      });
+
+      // Elliptical inner cap built directly in YZ plane
+      function createInnerCap(side) {
+        const geo = new THREE.CircleGeometry(1, 64);
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const px = pos.getX(i); // circle x → bean z
+          const py = pos.getY(i); // circle y → bean y
+          // Match bean cross-section at x=0: y*1.05, z*0.40
+          const beanY = py * 1.02;
+          const beanZ = px * 0.38;
+          // Subtle crease indent on front face
+          const creaseT = Math.max(0, 1 - Math.abs(px) / 0.15);
+          const creaseZ = beanZ > 0 ? -creaseT * creaseT * 0.06 * (1 - py * py) : 0;
+          pos.setXYZ(i, side * 0.002, beanY, beanZ + creaseZ);
+        }
+        geo.computeVertexNormals();
+        return geo;
+      }
+
       const beanGroup = new THREE.Group();
       const leftHalf = new THREE.Mesh(createHalfGeometry(-1), beanMat);
       const rightHalf = new THREE.Mesh(createHalfGeometry(+1), beanMat);
+
+      // Inner caps — close the open faces
+      const leftCap = new THREE.Mesh(createInnerCap(-1), capMat);
+      const rightCap = new THREE.Mesh(createInnerCap(+1), capMat);
+      leftHalf.add(leftCap);
+      rightHalf.add(rightCap);
+
       beanGroup.add(leftHalf, rightHalf);
       beanGroup.scale.setScalar(1.3);
       scene.add(beanGroup);
@@ -2445,10 +2477,13 @@
           scrollProgress = p;
 
           // Color + roughness + metalness (oilier, shinier as it darkens)
-          beanMat.color.copy(lerpRoastColor(p));
+          const roastColor = lerpRoastColor(p);
+          beanMat.color.copy(roastColor);
           beanMat.roughness = 0.88 - p * 0.45;
           beanMat.metalness = 0.04 + p * 0.12;
           beanMat.bumpScale = 0.015 + p * 0.01;
+          // Inner cap color tracks slightly darker
+          capMat.color.copy(roastColor).multiplyScalar(0.7);
 
           // Rotation (scroll-driven, full revolution + tilt)
           beanGroup.rotation.y = p * Math.PI * 2.4;
@@ -2457,8 +2492,9 @@
           // Half split (only after 55% scroll, smoothstep) — THE WOW MOMENT
           const splitT = Math.max(0, (p - 0.55) / 0.45);
           const splitE = splitT * splitT * (3 - 2 * splitT);
-          leftHalf.position.x = -splitE * 0.18;
-          rightHalf.position.x = splitE * 0.18;
+          // Start overlapped (-0.005), split outward
+          leftHalf.position.x = -0.005 - splitE * 0.18;
+          rightHalf.position.x = 0.005 + splitE * 0.18;
           leftHalf.rotation.y = -splitE * 0.45;
           rightHalf.rotation.y = splitE * 0.45;
           leftHalf.rotation.z = -splitE * 0.1;
