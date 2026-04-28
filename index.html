@@ -7,7 +7,42 @@
   <meta name="description" content="Kaphi Kahve — Dünyanın en seçkin kahve bölgelerinden çekirdekten fincana yolculuk. Premium kahve ithalat ve üretim.">
   <meta property="og:title" content="Kaphi Kahve — Çekirdekten Fincana">
   <meta property="og:description" content="Dünyanın en seçkin kahve bölgelerinden çekirdekten fincana yolculuk.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tr_TR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#060403">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Kaphi Kahve",
+    "description": "Premium kahve ithalat ve üretim. 12 ülkeden doğrudan çiftçi ilişkisi ile çekirdekten fincana yolculuk.",
+    "url": "https://kaphikahve.com",
+    "telephone": "+902164121310",
+    "email": "info@kaphikahve.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "İstanbul",
+      "addressCountry": "TR"
+    },
+    "sameAs": ["https://instagram.com/tcwcoffee"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Kaphi Kahve",
+    "url": "https://kaphikahve.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://kaphikahve.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
@@ -1386,7 +1421,7 @@
 
   <!-- Cart -->
   <div class="cart-overlay" id="cart-overlay"></div>
-  <div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-sidebar" id="cart-sidebar" role="dialog" aria-modal="true" aria-label="Sepet">
     <div class="cart-header">
       <h3>Sepetiniz</h3>
       <button class="cart-close" id="cart-close" aria-label="Kapat">
@@ -1412,7 +1447,7 @@
 
   <!-- Checkout -->
   <div class="co-overlay" id="co-overlay"></div>
-  <div class="co-modal" id="co-modal">
+  <div class="co-modal" id="co-modal" role="dialog" aria-modal="true" aria-labelledby="co-title">
     <div class="co-header">
       <h3 id="co-title">Sipariş</h3>
       <button class="co-close" id="co-close" aria-label="Kapat">
