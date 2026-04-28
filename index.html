@@ -1925,11 +1925,26 @@
 
       // ── Bean geometry helper (returns squashed sphere) ──
       function createBeanGeo(size) {
-        const g = new THREE.SphereGeometry(size, 18, 14);
+        const g = new THREE.SphereGeometry(size, 24, 18);
         const pos = g.attributes.position;
         for (let i = 0; i < pos.count; i++) {
-          pos.setX(i, pos.getX(i) * 0.62);
-          pos.setZ(i, pos.getZ(i) * 0.42);
+          let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+          // Bean proportions
+          x *= 0.58; z *= 0.42;
+          // Taper at poles
+          const yN = y / size;
+          const taper = 1 - yN * yN * 0.15;
+          x *= taper; z *= taper;
+          // Center crease hint
+          const absX = Math.abs(x);
+          const cw = size * 0.1;
+          if (absX < cw && z > 0) {
+            z -= 0.04 * size * (1 - absX/cw) * (1 - yN*yN);
+          }
+          // Micro noise
+          const n = Math.sin(y*18 + x*12) * 0.008 * size;
+          x += n; z += n * 0.5;
+          pos.setXYZ(i, x, y, z);
         }
         g.computeVertexNormals();
         return g;
@@ -2224,37 +2239,123 @@
       const lightCool = new THREE.Color(0xfff0d6);
       const lightHot  = new THREE.Color(0xff8030);
 
-      // ── Bean halves ──
+      // ── Realistic Bean Halves ──
+      // Simple pseudo-noise for organic surface
+      function pnoise(x, y, z) {
+        const v = Math.sin(x*12.9898 + y*78.233 + z*37.719) * 43758.5453;
+        return v - Math.floor(v);
+      }
+      function smoothNoise(x, y, z, freq) {
+        return (Math.sin(x*freq) * Math.cos(y*freq*0.7) * Math.sin(z*freq*1.3)
+              + Math.sin(x*freq*2.1 + 1.7) * Math.cos(z*freq*1.8) * 0.5) / 1.5;
+      }
+
       function createHalfGeometry(side) {
-        const geo = new THREE.SphereGeometry(1, 96, 96);
+        const geo = new THREE.SphereGeometry(1, 128, 128);
         const pos = geo.attributes.position;
         for (let i = 0; i < pos.count; i++) {
           let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-          // Ellipsoid: tall, narrow, flat
-          x *= 0.62; y *= 1.05; z *= 0.42;
-          // Subtle surface waviness for natural feel
-          const noise = Math.sin(y * 12) * Math.cos(z * 9) * 0.012;
-          x += noise * Math.sign(x || 0.001);
-          z += noise * 0.4;
-          // Clamp to one side: flat inner face
-          if (side < 0) x = Math.min(x, 0);
-          else x = Math.max(x, 0);
+
+          // 1. Ellipsoid shape — coffee bean proportions (tall, rounded, slightly flat)
+          x *= 0.58;
+          y *= 1.1;
+          z *= 0.44;
+
+          // 2. Taper top and bottom (narrower at poles)
+          const yNorm = y / 1.1; // -1 to 1
+          const taper = 1 - yNorm * yNorm * 0.18;
+          x *= taper;
+          z *= taper;
+
+          // 3. Belly bulge (wider in the middle)
+          const belly = 1 + (1 - yNorm * yNorm) * 0.08;
+          x *= belly;
+          z *= belly;
+
+          // 4. Asymmetry (one side slightly fuller — real beans aren't perfect)
+          if (x > 0) x *= 1.03;
+
+          // 5. Center crease / groove (the defining feature of a coffee bean)
+          const creaseDepth = 0.09;
+          const creaseWidth = 0.12;
+          const absX = Math.abs(x);
+          if (absX < creaseWidth) {
+            const creaseFactor = 1 - (absX / creaseWidth);
+            const creaseProfile = creaseFactor * creaseFactor; // parabolic
+            const yFade = 1 - Math.pow(Math.abs(yNorm), 6); // fade at poles
+            z -= creaseDepth * creaseProfile * yFade * (z > 0 ? 1 : 0.3);
+          }
+
+          // 6. Multi-frequency organic surface noise
+          const n1 = smoothNoise(x, y, z, 8) * 0.012;
+          const n2 = smoothNoise(x, y, z, 16) * 0.006;
+          const n3 = smoothNoise(x, y, z, 32) * 0.003;
+          const totalNoise = n1 + n2 + n3;
+          const nx = x / (Math.sqrt(x*x + y*y + z*z) || 1);
+          const ny = y / (Math.sqrt(x*x + y*y + z*z) || 1);
+          const nz = z / (Math.sqrt(x*x + y*y + z*z) || 1);
+          x += nx * totalNoise;
+          y += ny * totalNoise;
+          z += nz * totalNoise;
+
+          // 7. Silver skin texture — subtle ridges along Y axis
+          const ridges = Math.sin(y * 25 + x * 5) * 0.004 * (1 - Math.abs(yNorm));
+          x += ridges * nx;
+          z += ridges * nz;
+
+          // 8. Split halves for the cracking animation
+          if (side < 0) x = Math.min(x, 0.005);
+          else x = Math.max(x, -0.005);
+
           pos.setXYZ(i, x, y, z);
         }
         geo.computeVertexNormals();
         return geo;
       }
 
+      // ── Canvas-based bump texture (grain / pores) ──
+      const bumpTex = (function() {
+        const c = document.createElement('canvas');
+        c.width = c.height = 512;
+        const ctx = c.getContext('2d');
+        // Base
+        ctx.fillStyle = '#888';
+        ctx.fillRect(0, 0, 512, 512);
+        // Grain noise
+        const imgData = ctx.getImageData(0, 0, 512, 512);
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          const v = 128 + (Math.random() - 0.5) * 50;
+          imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = v;
+        }
+        ctx.putImageData(imgData, 0, 0);
+        // Larger pores
+        for (let i = 0; i < 200; i++) {
+          const px = Math.random() * 512, py = Math.random() * 512;
+          const r = 1 + Math.random() * 3;
+          ctx.beginPath();
+          ctx.arc(px, py, r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(60,60,60,${0.1 + Math.random() * 0.15})`;
+          ctx.fill();
+        }
+        const tex = new THREE.CanvasTexture(c);
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(2, 2);
+        return tex;
+      })();
+
       const beanMat = new THREE.MeshStandardMaterial({
-        color: new THREE.Color('#8fa968'),
-        roughness: 0.9, metalness: 0.05,
+        color: new THREE.Color('#6b9248'),
+        roughness: 0.88,
+        metalness: 0.04,
+        bumpMap: bumpTex,
+        bumpScale: 0.015,
       });
 
       const beanGroup = new THREE.Group();
       const leftHalf = new THREE.Mesh(createHalfGeometry(-1), beanMat);
       const rightHalf = new THREE.Mesh(createHalfGeometry(+1), beanMat);
       beanGroup.add(leftHalf, rightHalf);
-      beanGroup.scale.setScalar(1.25);
+      beanGroup.scale.setScalar(1.3);
       scene.add(beanGroup);
 
       // ── Smoke particles ──
@@ -2343,9 +2444,11 @@
           const p = self.progress;
           scrollProgress = p;
 
-          // Color + roughness (oilier as it darkens)
+          // Color + roughness + metalness (oilier, shinier as it darkens)
           beanMat.color.copy(lerpRoastColor(p));
-          beanMat.roughness = 0.92 - p * 0.5;
+          beanMat.roughness = 0.88 - p * 0.45;
+          beanMat.metalness = 0.04 + p * 0.12;
+          beanMat.bumpScale = 0.015 + p * 0.01;
 
           // Rotation (scroll-driven, full revolution + tilt)
           beanGroup.rotation.y = p * Math.PI * 2.4;
