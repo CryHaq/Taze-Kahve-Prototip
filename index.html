@@ -756,6 +756,58 @@
       .toast { left: var(--space-md); right: var(--space-md); bottom: var(--space-md); }
     }
 
+    /* ══════ STORY BRIDGE (dramatic pause) ══════ */
+    .story-bridge {
+      position: relative; width: 100%; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-deep); overflow: hidden;
+    }
+    .story-bridge-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,149,108,0.05), transparent),
+        radial-gradient(ellipse 30% 50% at 70% 60%, rgba(107,143,78,0.03), transparent);
+    }
+    .story-bridge-content {
+      position: relative; z-index: 1; text-align: center;
+      padding: 0 var(--space-xl); max-width: 800px;
+    }
+    .story-bridge-content h2 {
+      font-size: clamp(2.5rem, 5.5vw, 4.5rem); color: var(--cream);
+      margin-bottom: var(--space-lg);
+    }
+    .story-bridge-content h2 em { font-style: italic; color: var(--gold); }
+    .story-bridge-ornament {
+      width: 0; height: 1px; margin: var(--space-xl) auto;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .story-bridge-content p {
+      font-size: clamp(1rem, 2vw, 1.15rem); color: var(--cream-dim);
+      max-width: 500px; margin: 0 auto;
+      opacity: 0; transform: translateY(20px);
+    }
+    .story-bridge .sb-word {
+      display: inline-block; overflow: hidden; vertical-align: bottom;
+    }
+    .story-bridge .sb-word span {
+      display: inline-block; transform: translateY(110%);
+    }
+
+    /* ══════ SECTION GRADIENT SEAMS ══════ */
+    .seam-top {
+      position: relative;
+    }
+    .seam-top::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 100px; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, var(--bg-deep), transparent);
+    }
+    .seam-bottom::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 100px; z-index: 1; pointer-events: none;
+      background: linear-gradient(to top, var(--bg-deep), transparent);
+    }
+
     /* ══════ STATS BRIDGE ══════ */
     #scene-stats {
       min-height: auto; padding: var(--space-3xl) var(--space-xl);
@@ -1101,9 +1153,29 @@
   </section>
 
   <!-- ═══════════════════════════════════════
+       STORY BRIDGE — Dramatic Pause
+  ═══════════════════════════════════════ -->
+  <section class="story-bridge" id="story-bridge">
+    <div class="story-bridge-bg"></div>
+    <div class="story-bridge-content">
+      <h2>
+        <span class="sb-word"><span>30</span></span>
+        <span class="sb-word"><span> yıllık</span></span>
+        <span class="sb-word"><span> <em>yolculuk,</em></span></span><br>
+        <span class="sb-word"><span>tek</span></span>
+        <span class="sb-word"><span> bir</span></span>
+        <span class="sb-word"><span> fincan</span></span>
+        <span class="sb-word"><span> için.</span></span>
+      </h2>
+      <div class="story-bridge-ornament"></div>
+      <p>Şimdi bu tutkuyu keşfetme sırası sizde.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
        STATS BRIDGE — Story → Commerce Transition
   ═══════════════════════════════════════ -->
-  <section id="scene-stats">
+  <section id="scene-stats" class="seam-top">
     <div class="stats-bg"></div>
     <div class="stats-inner">
       <div class="stats-eyebrow section-fade-in">
@@ -1588,6 +1660,8 @@
       initOriginScroll();
       initRoastScene();
       initGrindScene();
+      initStoryBridge();
+      initParallax();
       renderFilters();
       renderProducts();
       initProductModal();
@@ -2388,19 +2462,131 @@
        PRODUCTS REVEAL
     ═══════════════════════════════════════ */
     function initProductsReveal() {
-      gsap.from('.products-header', {
-        scrollTrigger: { trigger: '.products-header', start: 'top 85%', once: true },
-        y: 50, opacity: 0, duration: 0.8, ease: 'power3.out'
+      // Products header — scale + fade from below
+      const headerTl = gsap.timeline({
+        scrollTrigger: { trigger: '.products-header', start: 'top 80%', once: true }
+      });
+      headerTl.from('.products-header .section-label', {
+        y: 20, opacity: 0, duration: 0.5, ease: 'power3.out'
+      })
+      .from('.products-header h2', {
+        y: 40, opacity: 0, duration: 0.8, ease: 'power3.out'
+      }, '-=0.3')
+      .from('.products-header p', {
+        y: 30, opacity: 0, duration: 0.6, ease: 'power3.out'
+      }, '-=0.5')
+      .from('.filter-bar', {
+        y: 20, opacity: 0, duration: 0.5, ease: 'power3.out'
+      }, '-=0.3');
+
+      // Product cards — staggered scale-up with anime.js for variety
+      ScrollTrigger.create({
+        trigger: '.products-grid',
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          anime({
+            targets: '.product-card',
+            opacity: [0, 1],
+            translateY: [80, 0],
+            scale: [0.95, 1],
+            delay: anime.stagger(100),
+            duration: 800,
+            easing: 'easeOutCubic',
+          });
+        }
       });
 
-      gsap.from('.product-card', {
-        scrollTrigger: { trigger: '.products-grid', start: 'top 85%', once: true },
-        y: 60, opacity: 0, duration: 0.7, stagger: 0.08, ease: 'power3.out'
+      // CTA — dramatic entrance
+      const ctaTl = gsap.timeline({
+        scrollTrigger: { trigger: '.cta-inner', start: 'top 80%', once: true }
+      });
+      ctaTl.from('.cta-inner h2', {
+        y: 50, opacity: 0, duration: 0.9, ease: 'power3.out'
+      })
+      .from('.cta-inner p', {
+        y: 30, opacity: 0, duration: 0.7, ease: 'power3.out'
+      }, '-=0.5')
+      .from('.cta-inner .btn-primary', {
+        y: 20, opacity: 0, scale: 0.9, duration: 0.6, ease: 'back.out(1.7)'
+      }, '-=0.3');
+    }
+
+    /* ═══════════════════════════════════════
+       STORY BRIDGE — Dramatic text reveal
+    ═══════════════════════════════════════ */
+    function initStoryBridge() {
+      const section = document.getElementById('story-bridge');
+      if (!section) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 60%',
+          toggleActions: 'play none none none',
+          once: true,
+        }
       });
 
-      gsap.from('.cta-inner', {
-        scrollTrigger: { trigger: '.cta-inner', start: 'top 85%', once: true },
-        y: 50, opacity: 0, duration: 0.8, ease: 'power3.out'
+      tl.to('.sb-word span', {
+        y: '0%',
+        duration: 1.1,
+        ease: 'power4.out',
+        stagger: 0.06,
+      })
+      .to('.story-bridge-ornament', {
+        width: '80px',
+        duration: 0.8,
+        ease: 'power2.out',
+      }, '-=0.5')
+      .to('.story-bridge-content p', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+      }, '-=0.4');
+
+      // Parallax: text moves slower than scroll
+      gsap.to('.story-bridge-content', {
+        y: -60,
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       PARALLAX BACKGROUNDS
+    ═══════════════════════════════════════ */
+    function initParallax() {
+      // Stats background gradient shifts
+      gsap.to('.stats-bg', {
+        y: -40,
+        scrollTrigger: {
+          trigger: '#scene-stats',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+
+      // Testimonials background
+      gsap.to('.testimonials-bg', {
+        y: -30,
+        scrollTrigger: {
+          trigger: '#scene-testimonials',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+
+      // CTA radial gradient
+      gsap.to('.cta-section::before', {
+        scale: 1.2,
       });
     }
 
