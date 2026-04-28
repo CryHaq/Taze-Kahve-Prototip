@@ -422,6 +422,26 @@
     }
     .section-label::before, .section-label::after { content: ''; width: 24px; height: 1px; background: var(--gold-dim); }
 
+    /* Search */
+    .search-wrap {
+      position: relative; max-width: 380px; margin: 0 auto var(--space-lg);
+    }
+    .search-input {
+      width: 100%; padding: 12px 16px 12px 44px; background: var(--bg-elevated);
+      border: 1px solid rgba(200,149,108,0.1); color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(200,149,108,0.15);
+    }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--gold-dim); pointer-events: none;
+    }
+
     /* Filter bar */
     .filter-bar {
       display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center;
@@ -854,6 +874,37 @@
     .cart-checkout:active { transform: scale(0.98); }
     .cart-checkout:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
 
+    /* Discount code */
+    .discount-row { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
+    .discount-input {
+      flex: 1; padding: 10px 14px; background: var(--bg-elevated);
+      border: 1px solid rgba(200,149,108,0.12); color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      transition: border-color 0.3s;
+    }
+    .discount-input::placeholder { color: var(--text-muted); text-transform: none; letter-spacing: 0; }
+    .discount-input:focus { outline: none; border-color: var(--gold); }
+    .discount-apply {
+      padding: 10px 16px; background: var(--bg-elevated);
+      border: 1px solid var(--gold-dim); color: var(--gold);
+      font-family: 'DM Sans', sans-serif; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .discount-apply:hover { background: var(--gold); color: var(--bg-deep); border-color: var(--gold); }
+    .discount-apply:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .discount-msg {
+      font-size: 0.75rem; margin-bottom: var(--space-sm); min-height: 1.2em;
+    }
+    .discount-msg.success { color: var(--green-bean); }
+    .discount-msg.error { color: #c0392b; }
+    .cart-total-old {
+      text-decoration: line-through; color: var(--text-muted);
+      font-size: 0.9rem; margin-right: var(--space-sm);
+    }
+
     .nav-cart {
       position: relative; cursor: pointer; color: var(--cream-dim); transition: color 0.3s;
     }
@@ -1200,8 +1251,13 @@
       </div>
     </div>
     <div class="cart-footer">
+      <div class="discount-row">
+        <input class="discount-input" id="discount-input" placeholder="İndirim kodu" autocomplete="off">
+        <button class="discount-apply" id="discount-apply">Uygula</button>
+      </div>
+      <div class="discount-msg" id="discount-msg"></div>
       <div class="cart-total"><span>Toplam</span><span id="cart-total-price">₺0</span></div>
-      <button class="cart-checkout">Siparişi Tamamla</button>
+      <button class="cart-checkout" id="checkout-btn">Siparişi Tamamla</button>
     </div>
   </div>
 
@@ -1414,6 +1470,10 @@
         <div class="section-label">Koleksiyon</div>
         <h2>Şimdi <em>keşfedin</em></h2>
         <p>Her biri özenle seçilmiş, ustalıkla kavrulmuş kahve koleksiyonumuz.</p>
+      </div>
+      <div class="search-wrap section-fade-in">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="product-search" type="search" placeholder="Kahve ara..." autocomplete="off">
       </div>
       <div class="filter-bar" id="filter-bar"></div>
       <div class="products-grid" id="products-grid"></div>
@@ -1696,8 +1756,78 @@
           </div>`
         ).join('');
       }
-      total.textContent = '₺' + cartTotal();
+      const rawTotal = cartTotal();
+      const finalTotal = getDiscountedTotal();
+      if (appliedDiscount && rawTotal > 0) {
+        total.innerHTML = '<span class="cart-total-old">₺' + rawTotal + '</span> ₺' + finalTotal;
+      } else {
+        total.textContent = '₺' + rawTotal;
+      }
       if (typeof anime !== 'undefined') anime({ targets: c, scale: [1.5,1], duration: 400, easing: 'easeOutElastic(1,.5)' });
+      saveCart();
+    }
+
+    /* ── Cart persistence ── */
+    function saveCart() {
+      try { localStorage.setItem('kaphi-cart', JSON.stringify(cart)); } catch(e) {}
+    }
+    /* ── Discount system ── */
+    const discountCodes = { 'KAPHI15': 15, 'KAHVE10': 10, 'ILKKAHVE': 20 };
+    let appliedDiscount = null;
+    function initDiscount() {
+      const input = document.getElementById('discount-input');
+      const btn = document.getElementById('discount-apply');
+      const msg = document.getElementById('discount-msg');
+      if (!btn) return;
+
+      // Load saved discount
+      try {
+        const saved = localStorage.getItem('kaphi-discount');
+        if (saved && discountCodes[saved]) {
+          appliedDiscount = { code: saved, percent: discountCodes[saved] };
+          input.value = saved;
+          msg.textContent = '%' + appliedDiscount.percent + ' indirim uygulandı';
+          msg.className = 'discount-msg success';
+          updateCartUI();
+        }
+      } catch(e) {}
+
+      btn.addEventListener('click', () => {
+        const code = input.value.trim().toUpperCase();
+        if (discountCodes[code]) {
+          appliedDiscount = { code, percent: discountCodes[code] };
+          msg.textContent = '%' + appliedDiscount.percent + ' indirim uygulandı!';
+          msg.className = 'discount-msg success';
+          try { localStorage.setItem('kaphi-discount', code); } catch(e) {}
+          updateCartUI();
+          anime({ targets: msg, opacity: [0,1], translateY: [8,0], duration: 400, easing: 'easeOutCubic' });
+        } else {
+          appliedDiscount = null;
+          msg.textContent = 'Geçersiz indirim kodu';
+          msg.className = 'discount-msg error';
+          try { localStorage.removeItem('kaphi-discount'); } catch(e) {}
+          anime({ targets: input, translateX: [-6, 6, -4, 4, 0], duration: 400, easing: 'easeInOutQuad' });
+          updateCartUI();
+        }
+      });
+    }
+    function getDiscountedTotal() {
+      const raw = cartTotal();
+      if (appliedDiscount) return Math.round(raw * (1 - appliedDiscount.percent / 100));
+      return raw;
+    }
+
+    function loadCart() {
+      try {
+        const data = JSON.parse(localStorage.getItem('kaphi-cart'));
+        if (data && typeof data === 'object') {
+          Object.entries(data).forEach(([id, v]) => {
+            const p = products.find(x => x.id === id);
+            if (p && v.qty > 0) cart[id] = { item: p, qty: v.qty };
+          });
+          updateCartUI();
+        }
+      } catch(e) {}
     }
     function showToast(t) {
       const el = document.getElementById('toast');
@@ -1722,16 +1852,38 @@
         });
       });
     }
+    let searchQuery = '';
     function filterProducts() {
       const grid = document.getElementById('products-grid');
       grid.classList.add('changing');
+      const q = searchQuery.toLocaleLowerCase('tr');
       setTimeout(() => {
         document.querySelectorAll('.product-card').forEach(card => {
-          const match = activeFilter === 'all' || card.dataset.cat === activeFilter;
-          card.classList.toggle('hidden', !match);
+          const catMatch = activeFilter === 'all' || card.dataset.cat === activeFilter;
+          let searchMatch = true;
+          if (q) {
+            const p = products.find(x => x.id === card.dataset.id);
+            if (p) {
+              const haystack = (p.name + ' ' + p.desc + ' ' + p.cat + ' ' + (p.origin || '')).toLocaleLowerCase('tr');
+              searchMatch = haystack.includes(q);
+            }
+          }
+          card.classList.toggle('hidden', !catMatch || !searchMatch);
         });
         grid.classList.remove('changing');
       }, 220);
+    }
+    function initSearch() {
+      const input = document.getElementById('product-search');
+      if (!input) return;
+      let timer;
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          searchQuery = input.value.trim();
+          filterProducts();
+        }, 200);
+      });
     }
 
     /* ── Product detail modal ── */
@@ -1869,11 +2021,14 @@
       initParallax();
       renderFilters();
       renderProducts();
+      initSearch();
       initProductModal();
+      loadCart();
       initProductsReveal();
       initStats();
       initFaq();
       initScrollReveals();
+      initDiscount();
       initCart();
       initNav();
       initProgress();
