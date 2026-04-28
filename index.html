@@ -85,11 +85,24 @@
       position: fixed; inset: 0; z-index: 10000; background: var(--bg-deep);
       display: flex; align-items: center; justify-content: center; flex-direction: column;
     }
-    #loader.done { opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
-    .loader-logo { font-family: 'Instrument Serif', serif; font-size: clamp(2rem,5vw,3.5rem); color: var(--gold); opacity: 0; }
-    .loader-sub { font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cream-dim); margin-top: var(--space-md); opacity: 0; }
-    .loader-progress { width: 180px; height: 1px; background: var(--bg-elevated); margin-top: var(--space-xl); overflow: hidden; }
-    .loader-fill { width: 0; height: 100%; background: var(--gold); }
+    #loader.done { pointer-events: none; }
+    .loader-logo {
+      font-family: 'Instrument Serif', serif; font-size: clamp(2rem,5vw,3.5rem);
+      color: var(--gold); opacity: 0; letter-spacing: -0.02em;
+    }
+    .loader-sub {
+      font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--cream-dim); margin-top: var(--space-md); opacity: 0;
+    }
+    .loader-progress {
+      width: 200px; height: 1px; background: rgba(200,149,108,0.12);
+      margin-top: var(--space-xl); overflow: hidden; position: relative;
+    }
+    .loader-fill { width: 0; height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light)); }
+    .loader-percent {
+      font-family: 'DM Sans', sans-serif; font-size: 0.65rem; color: var(--gold-dim);
+      letter-spacing: 0.15em; margin-top: var(--space-sm); opacity: 0;
+    }
 
     /* ══════ NAV ══════ */
     nav {
@@ -201,6 +214,11 @@
     .hero-eyebrow {
       font-size: 0.7rem; font-weight: 500; letter-spacing: 0.35em; text-transform: uppercase;
       color: var(--gold); margin-bottom: var(--space-lg); opacity: 0;
+      display: flex; align-items: center; justify-content: center; gap: var(--space-md);
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: ''; width: 40px; height: 1px; background: var(--gold-dim);
+      flex-shrink: 0;
     }
 
     .hero-title {
@@ -1016,6 +1034,7 @@
     <div class="loader-logo">Kaphi Kahve</div>
     <div class="loader-sub">Çekirdekten Fincana</div>
     <div class="loader-progress"><div class="loader-fill"></div></div>
+    <div class="loader-percent">0%</div>
   </div>
 
   <div class="noise"></div>
@@ -1689,18 +1708,33 @@
     window.addEventListener('load', () => {
       gsap.registerPlugin(ScrollTrigger);
 
-      // Loader animation
+      // Loader — cinematic sequence
+      const loader = document.getElementById('loader');
+      const pctEl = document.querySelector('.loader-percent');
+      const pctObj = { val: 0 };
       const tl = gsap.timeline({
         onComplete: () => {
-          document.getElementById('loader').classList.add('done');
-          setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
+          // Dramatic exit: scale up + fade
+          gsap.to(loader, {
+            opacity: 0, scale: 1.05, duration: 0.7, ease: 'power2.inOut',
+            onComplete: () => { loader.style.display = 'none'; }
+          });
           bootApp();
         }
       });
-      tl.to('.loader-logo', { opacity:1, duration:0.5 })
-        .to('.loader-sub', { opacity:1, duration:0.4 }, '-=0.2')
-        .to('.loader-fill', { width:'100%', duration:1.4, ease:'power2.inOut' }, '-=0.3')
-        .to(['.loader-logo','.loader-sub'], { opacity:0, y:-15, duration:0.3 }, '-=0.1');
+      tl.to('.loader-logo', { opacity: 1, duration: 0.6, ease: 'power2.out' })
+        .to('.loader-sub', { opacity: 1, duration: 0.4 }, '-=0.2')
+        .to(pctEl, { opacity: 1, duration: 0.2 }, '-=0.1')
+        .to('.loader-fill', {
+          width: '100%', duration: 1.6, ease: 'power2.inOut',
+          onUpdate: function() {
+            pctObj.val = Math.round(this.progress() * 100);
+            pctEl.textContent = pctObj.val + '%';
+          }
+        }, '-=0.3')
+        .to(['.loader-logo', '.loader-sub', pctEl], {
+          opacity: 0, y: -20, duration: 0.35, stagger: 0.05, ease: 'power2.in'
+        }, '+=0.1');
     });
 
     function bootApp() {
@@ -1937,10 +1971,29 @@
        HERO TEXT ANIMATION
     ═══════════════════════════════════════ */
     function initHeroAnim() {
-      const tl = gsap.timeline({ delay: 2.2 });
-      tl.to('.hero-eyebrow', { opacity:1, duration:0.6, ease:'power2.out' })
-        .to('.hero-title .word span', { y:'0%', duration:1, ease:'power4.out', stagger:0.08 }, '-=0.3')
-        .to('.hero-sub', { opacity:1, y:0, duration:0.7, ease:'power3.out' }, '-=0.5');
+      const tl = gsap.timeline({ delay: 0.3 });
+
+      // Eyebrow slides in with a line
+      tl.to('.hero-eyebrow', {
+        opacity: 1, duration: 0.8, ease: 'power2.out'
+      })
+      // Title words cascade up with spring easing
+      .to('.hero-title .word span', {
+        y: '0%', duration: 1.2,
+        ease: 'elastic.out(1, 0.75)',
+        stagger: 0.07,
+      }, '-=0.4')
+      // Subtitle fades in with slight upward motion
+      .to('.hero-sub', {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'
+      }, '-=0.6')
+      // Scroll hint pulses in
+      .to('#scroll-hint', {
+        opacity: 1, duration: 0.5, ease: 'power2.out'
+      }, '-=0.3');
+
+      // Set scroll hint initial state
+      gsap.set('#scroll-hint', { opacity: 0 });
     }
 
     /* ═══════════════════════════════════════
