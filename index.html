@@ -146,8 +146,8 @@
       display: flex; align-items: center; justify-content: space-between;
       mix-blend-mode: difference;
     }
-    .nav-logo { font-family: 'Instrument Serif', serif; font-size: 1.5rem; color: var(--cream); text-decoration: none; }
-    .nav-logo em { color: var(--gold); font-style: normal; }
+    .nav-logo { text-decoration: none; display: flex; align-items: center; }
+    .nav-logo img { height: 32px; width: auto; filter: brightness(1.1); }
     .nav-right { display: flex; align-items: center; gap: var(--space-xl); }
     .nav-links { display: flex; align-items: center; gap: var(--space-xl); }
     .nav-links a {
@@ -1384,7 +1384,7 @@
 <body>
   <!-- Loader -->
   <div id="loader">
-    <div class="loader-logo">Kaphi Kahve</div>
+    <div class="loader-logo"><img src="https://kaphikahve.com/image/catalog/kaphi2.png" alt="Kaphi Kahve" style="height:48px;width:auto;filter:brightness(1.1)"></div>
     <div class="loader-sub">Çekirdekten Fincana</div>
     <div class="loader-progress"><div class="loader-fill"></div></div>
     <div class="loader-percent">0%</div>
@@ -1395,7 +1395,7 @@
 
   <!-- Nav -->
   <nav>
-    <a href="#" class="nav-logo">Kaphi<em>.</em></a>
+    <a href="#" class="nav-logo"><img src="https://kaphikahve.com/image/catalog/kaphi2.png" alt="Kaphi Kahve"></a>
     <div class="nav-right">
       <div class="nav-links" id="nav-links">
         <a href="#scene-origin">Hikaye</a>
@@ -1845,7 +1845,7 @@
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <a href="#" class="nav-logo">Kaphi<em>.</em></a>
+        <a href="#" class="nav-logo"><img src="https://kaphikahve.com/image/catalog/kaphi2.png" alt="Kaphi Kahve"></a>
         <p>Dünyadan özenle seçilmiş kahve çekirdekleri. İstanbul'da ustaca kavrulur, Türkiye'nin dört bir yanına ulaştırılır.</p>
         <div class="footer-social">
           <a href="https://instagram.com/tcwcoffee" aria-label="Instagram" target="_blank" rel="noopener">
@@ -1859,10 +1859,10 @@
       <div class="footer-col">
         <h4>Ürünler</h4>
         <ul>
-          <li><a href="#">Espresso Blend</a></li>
-          <li><a href="#">Single Origin</a></li>
-          <li><a href="#">Türk Kahvesi</a></li>
-          <li><a href="#">Filtre Kahve</a></li>
+          <li><a href="#scene-products">Espresso Blend</a></li>
+          <li><a href="#scene-products">Filtre Kahve</a></li>
+          <li><a href="#scene-products">Türk Kahvesi</a></li>
+          <li><a href="#scene-products">Deneme Setleri</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1902,25 +1902,22 @@
     ═══════════════════════════════════════ */
     const products = [
       // ── Espresso Blend ──
-      { id:"horeca-espresso", name:"Horeca Espresso Blend", cat:"Espresso Blend", desc:"Yoğun gövde, çikolata ve fındık notaları. Sütle mükemmel uyum. Kafelerin vazgeçilmezi.", price:320, weight:"1 kg", img:"https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=600&q=80", badge:"best", origin:"Brezilya & Etiyopya karışım", roast:"Orta-Koyu" },
-      { id:"special-espresso", name:"Special Espresso Blend", cat:"Espresso Blend", desc:"Karamel tatlılığı, narenciye asidite. Specialty kahve severler için.", price:395, weight:"1 kg", img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefda?w=600&q=80", badge:"new", origin:"Kenya & Kolombiya karışım", roast:"Orta" },
-      { id:"classic-espresso", name:"Classic Espresso", cat:"Espresso Blend", desc:"Geleneksel İtalyan espresso profili. Fındık, bitter çikolata, uzun artçı tat.", price:280, weight:"500 g", img:"https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=600&q=80", badge:null, origin:"Brezilya & Hindistan karışım", roast:"Koyu" },
-      // ── Single Origin ──
-      { id:"colombia-medellin", name:"Colombia Medellin", cat:"Single Origin", desc:"Kırmızı elma, bal ve kakao. Yuvarlak gövdeli, dengeli fincan.", price:445, weight:"500 g", img:"https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=600&q=80", badge:null, origin:"Kolombiya — Antioquia", roast:"Orta" },
-      { id:"yirgacheffe", name:"Ethiopia Yirgacheffe", cat:"Single Origin", desc:"Yasemin, bergamot, limon. Çiçeksi aroma ve temiz asidite.", price:485, weight:"500 g", img:"https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&q=80", badge:"new", origin:"Etiyopya — Yirgacheffe", roast:"Açık" },
-      { id:"guatemala-antigua", name:"Guatemala Antigua", cat:"Single Origin", desc:"Bitter çikolata, baharatlı notalar, füme tatlılık. Volkanik toprak karakteri.", price:465, weight:"500 g", img:"https://images.unsplash.com/photo-1497515114889-1e4a4a5a9a0b?w=600&q=80", badge:null, origin:"Guatemala — Antigua", roast:"Orta-Koyu" },
-      { id:"costa-rica", name:"Costa Rica Tarrazú", cat:"Single Origin", desc:"Parlak asidite, bal, şeftali. Temiz ve zarif bir fincan.", price:495, weight:"500 g", img:"https://images.unsplash.com/photo-1611070960239-7afbe29ffca8?w=600&q=80", badge:"new", origin:"Kosta Rika — Tarrazú", roast:"Açık-Orta" },
-      // ── Filtre Kahve ──
-      { id:"brazil-santos", name:"Brazil Santos Filtre", cat:"Filtre Kahve", desc:"Düşük asidite, fıstık ve karamel. Günlük içim için ideal.", price:290, weight:"500 g", img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80", badge:null, origin:"Brezilya — Santos", roast:"Orta" },
-      { id:"kenya-aa", name:"Kenya AA", cat:"Filtre Kahve", desc:"Böğürtlen, domates, siyah çay. Kompleks ve canlı bir fincan.", price:510, weight:"500 g", img:"https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=600&q=80", badge:null, origin:"Kenya — Nyeri", roast:"Açık-Orta" },
-      { id:"sumatra-mandheling", name:"Sumatra Mandheling", cat:"Filtre Kahve", desc:"Topraksı, baharatlı, tam gövde. Koyu çikolata ve tütün notaları.", price:420, weight:"500 g", img:"https://images.unsplash.com/photo-1442550528053-c431ecb55509?w=600&q=80", badge:null, origin:"Endonezya — Sumatra", roast:"Koyu" },
-      { id:"house-blend-filtre", name:"House Blend Filtre", cat:"Filtre Kahve", desc:"Dengeli, yumuşak, her gün içilebilir. Fındık ve kakao notaları.", price:245, weight:"500 g", img:"https://images.unsplash.com/photo-1512568400610-62da28bc8a13?w=600&q=80", badge:"best", origin:"Brezilya & Kolombiya karışım", roast:"Orta" },
+      { id:"horeca-espresso", name:"Horeca Blend Espresso 1000gr", cat:"Espresso Blend", desc:"Yoğun gövde, çikolata ve fındık notaları. Sütle mükemmel uyum. Kafelerin vazgeçilmezi. Haftalık kavrum.", price:1800, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/urunler/HRC1000-500x500.jpg", badge:"best", origin:"Brezilya & Etiyopya karışım", roast:"Orta-Koyu" },
+      { id:"special-espresso", name:"Special Blend Espresso 1000gr", cat:"Espresso Blend", desc:"Karamel tatlılığı, narenciye asidite. Specialty kahve severler için. Haftalık taze kavrum.", price:1500, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/urunler/SPC1000-500x500.jpg", badge:"new", origin:"Kenya & Kolombiya karışım", roast:"Orta" },
+      { id:"warehouse-espresso", name:"Warehouse Blend Espresso 1000gr", cat:"Espresso Blend", desc:"Colombia çekirdeklerinin tabanını oluşturduğu dengeli harman. Dengeli aroma, kavrum ve asidite.", price:1800, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/urunler/WHB1000-500x500.jpg", badge:null, origin:"Kolombiya bazlı karışım", roast:"Orta" },
+      { id:"christmas-espresso", name:"Christmas Blend Espresso 1000gr", cat:"Espresso Blend", desc:"İtalyan usulü koyu kavurma. Yoğun, karamelize, bitter-sweet karakter. Sınırlı üretim.", price:1500, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/urunler/XMAS1000-500x500.jpg", badge:"new", origin:"İtalyan Kavurma Harmanı", roast:"Koyu" },
+      // ── Deneme Setleri ──
+      { id:"deneme-5x100", name:"5'li Deneme Seti 5x100g", cat:"Deneme Seti", desc:"5 farklı single origin kahveyi deneyin. Her biri 100g, haftalık taze kavrum. Kahve yolculuğuna başlamak için ideal.", price:1100, weight:"500 g", img:"https://kaphikahve.com/image/cache/catalog/Kombinler/8bc89e3e-dcc1-44b1-8ebf-07c4299c39b1-500x500.jpg", badge:"best", origin:"5 Farklı Origin", roast:"Çeşitli" },
+      { id:"deneme-5x200", name:"Mega Deneme Seti 5x200g", cat:"Deneme Seti", desc:"5 farklı single origin kahve, her biri 200g. Toplam 1 kg taze kavrulmuş kahve. En sevdiğinizi keşfedin.", price:1900, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/Kombinler/b1d513b0-5347-4b35-89c7-a26e6afc40a0-500x500.jpg", badge:null, origin:"5 Farklı Origin", roast:"Çeşitli" },
+      // ── Avantaj Paketleri ──
+      { id:"kenya-ethiopia-250", name:"Kenya + Etiyopya Avantaj Paket", cat:"Filtre Kahve", desc:"Afrika'nın en seçkin iki origini bir arada. Kenya'nın kompleksliği, Etiyopya'nın çiçeksiliği. 2x250g.", price:990, weight:"500 g", img:"https://kaphikahve.com/image/cache/catalog/2x250/KEN-ETH-500x500.jpg", badge:null, origin:"Kenya & Etiyopya", roast:"Açık-Orta" },
+      { id:"colombia-2x500", name:"Colombia Avantaj Paket 2x500g", cat:"Filtre Kahve", desc:"Kolombiya'nın dengeli, yuvarlak gövdeli kahvesinden 1 kg. Kırmızı elma, bal ve kakao notaları.", price:1600, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/2x500/677567af-dcfc-47a6-8113-1d67ef282206-500x500.jpg", badge:null, origin:"Kolombiya", roast:"Orta" },
+      { id:"kenya-2x500", name:"Kenya Avantaj Paket 2x500g", cat:"Filtre Kahve", desc:"Kenya AA çekirdeklerinden 1 kg. Böğürtlen, domates, siyah çay. Kompleks ve canlı bir fincan.", price:1700, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/2x500/9ce827d2-ec49-4f03-ac2e-15e311bb076f-500x500.jpg", badge:null, origin:"Kenya — Nyeri", roast:"Açık-Orta" },
+      { id:"guatemala-2x500", name:"Guatemala Avantaj Paket 2x500g", cat:"Filtre Kahve", desc:"Guatemala Antigua'nın volkanik topraklarından 1 kg. Bitter çikolata, baharatlı notalar.", price:1650, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/2x500/4a7135d8-1f2a-4a14-b4f2-6b9b41e90b72-500x500.jpg", badge:null, origin:"Guatemala — Antigua", roast:"Orta-Koyu" },
       // ── Türk Kahvesi ──
-      { id:"turk-kahvesi", name:"Geleneksel Türk Kahvesi", cat:"Türk Kahvesi", desc:"Taş değirmende öğütülmüş, geleneksel formül. Köpüğü bol, aroması derin.", price:180, weight:"500 g", img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", badge:"best", origin:"Brezilya & Yemen karışım", roast:"Koyu" },
-      { id:"menengic", name:"Menengiç Kahvesi", cat:"Türk Kahvesi", desc:"Güneydoğu'nun efsanevi lezzeti. Kafeinsiz, doğal, otantik.", price:210, weight:"500 g", img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80", badge:null, origin:"Türkiye — Güneydoğu Anadolu", roast:"Geleneksel" },
-      { id:"dibek", name:"Dibek Kahvesi", cat:"Türk Kahvesi", desc:"Yedi baharatlı geleneksel formül. Damak çatlatan aroma, ipeksi kıvam.", price:195, weight:"500 g", img:"https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80", badge:null, origin:"Türkiye — Geleneksel Karışım", roast:"Orta-Koyu" },
-      { id:"damla-sakizli", name:"Damla Sakızlı Türk Kahvesi", cat:"Türk Kahvesi", desc:"Sakız ağacının eşsiz aroması ile harmanlanmış. Ege'nin ikramı.", price:230, weight:"250 g", img:"https://images.unsplash.com/photo-1514066558159-fc8c737ef259?w=600&q=80", badge:"new", origin:"Brezilya — Sakız Harmanı", roast:"Orta" },
-      { id:"osmanli-kahvesi", name:"Osmanlı Kahvesi", cat:"Türk Kahvesi", desc:"Kakuleli, tarçınlı saray kahvesi. Tarihi lezzet, modern sunum.", price:240, weight:"250 g", img:"https://images.unsplash.com/photo-1545665225-b23b99e4d45e?w=600&q=80", badge:null, origin:"Brezilya & Yemen — Baharat Harmanı", roast:"Koyu" },
+      { id:"turk-kahvesi", name:"Türk Kahvesi 500gr", cat:"Türk Kahvesi", desc:"Taş değirmende öğütülmüş, geleneksel formül. Köpüğü bol, aroması derin. Haftalık taze kavrum.", price:600, weight:"500 g", img:"https://kaphikahve.com/image/cache/catalog/urunler/turkkahvesi-500x500.jpeg", badge:"best", origin:"Brezilya & Yemen karışım", roast:"Koyu" },
+      // ── Yeşil Kahve ──
+      { id:"yesil-kahve", name:"Yeşil Kahve Çekirdeği", cat:"Yeşil Kahve", desc:"Kavrulmamış ham kahve çekirdeği. Ev kavurması yapanlar ve ithalatçılar için. Toptan fiyat avantajı.", price:850, weight:"1 kg", img:"https://kaphikahve.com/image/cache/catalog/urunler/yesilkahvecekirdegi-500x500.jpeg", badge:null, origin:"Çeşitli", roast:"Kavrulmamış" },
     ];
 
     /* ── Cart (id → { item, qty }) ── */
