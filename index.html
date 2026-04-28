@@ -359,10 +359,16 @@
     /* ══════ SCENE 5: PRODUCTS ══════ */
     #scene-products {
       min-height: auto; padding: var(--space-3xl) var(--space-xl);
-      background: var(--bg-surface);
+      background: var(--bg-surface); position: relative;
+    }
+    #scene-products::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 10%, rgba(200,149,108,0.12), transparent 90%);
     }
     @media (max-width: 640px) {
       #scene-products { padding: var(--space-2xl) var(--space-lg); }
+      .filter-chip { padding: 7px 14px; font-size: 0.72rem; }
+      .products-grid { gap: var(--space-md); }
     }
 
     .products-inner {
@@ -631,7 +637,14 @@
     }
     .cta-section::before {
       content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,149,108,0.06), transparent);
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 40%, rgba(200,149,108,0.07), transparent),
+        radial-gradient(ellipse 30% 40% at 20% 60%, rgba(107,143,78,0.03), transparent),
+        radial-gradient(ellipse 25% 35% at 80% 30%, rgba(200,149,108,0.04), transparent);
+    }
+    .cta-section::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,149,108,0.15), transparent);
     }
     .cta-inner { position: relative; z-index: 1; max-width: 650px; margin: 0 auto; }
     .cta-inner h2 { font-size: clamp(2.5rem, 5vw, 4rem); color: var(--cream); margin-bottom: var(--space-lg); }
@@ -662,7 +675,11 @@
     /* ══════ FOOTER ══════ */
     footer {
       padding: var(--space-2xl) var(--space-xl) var(--space-xl);
-      border-top: 1px solid rgba(200,149,108,0.06);
+      border-top: none; position: relative;
+    }
+    footer::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 5%, rgba(200,149,108,0.1), transparent 95%);
     }
     .footer-inner {
       max-width: 1200px; margin: 0 auto;
@@ -941,6 +958,10 @@
     #scene-faq {
       min-height: auto; padding: var(--space-3xl) var(--space-xl);
       background: var(--bg-surface); position: relative;
+    }
+    #scene-faq::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 10%, rgba(200,149,108,0.1), transparent 90%);
     }
     .faq-inner { max-width: 760px; margin: 0 auto; }
     .faq-header { text-align: center; margin-bottom: var(--space-2xl); }
