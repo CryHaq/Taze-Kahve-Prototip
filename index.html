@@ -643,6 +643,7 @@
       max-width: 1200px; margin: 0 auto;
       display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-xl);
     }
+    .footer-inner > * { opacity: 0; }
     .footer-brand p { color: var(--text-muted); font-size: 0.9rem; max-width: 280px; margin-top: var(--space-md); margin-bottom: var(--space-lg); }
     .footer-social { display: flex; gap: var(--space-md); }
     .footer-social a {
@@ -882,8 +883,11 @@
         box-shadow 0.4s;
     }
     .testimonial-card:hover {
-      transform: translateY(-6px); border-color: rgba(200,149,108,0.15);
+      transform: translateY(-6px) scale(1.01); border-color: rgba(200,149,108,0.15);
       box-shadow: 0 8px 24px rgba(var(--shadow-color),0.15), 0 24px 48px rgba(var(--shadow-color),0.1);
+    }
+    .testimonial-card:hover .testimonial-quote::before {
+      color: var(--gold); transition: color 0.3s;
     }
     .testimonial-stars { display: flex; gap: 2px; margin-bottom: var(--space-md); }
     .testimonial-stars svg { color: var(--gold); width: 14px; height: 14px; }
@@ -1900,7 +1904,7 @@
       const track = document.getElementById('origin-track');
       const panels = track.querySelectorAll('.origin-panel');
 
-      gsap.to(track, {
+      const scrollTween = gsap.to(track, {
         x: () => -(track.scrollWidth - window.innerWidth),
         ease: 'none',
         scrollTrigger: {
@@ -1913,25 +1917,48 @@
         }
       });
 
-      // Reveal each panel's content
+      // Reveal each panel's content with stagger
       panels.forEach((panel, i) => {
-        const inner = panel.querySelector('.origin-panel-inner');
-        if (!inner) return;
-        gsap.from(inner.children, {
-          opacity: 0,
-          y: 60,
-          stagger: 0.2,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: panel,
-            containerAnimation: gsap.getById && gsap.getById('originScroll'),
-            start: 'left 80%',
-            toggleActions: 'play none none none',
-            // Use the horizontal scroll position
-            scroller: window,
-          }
-        });
+        const visual = panel.querySelector('.origin-visual');
+        const text = panel.querySelector('.origin-text');
+        const num = panel.querySelector('.origin-num');
+
+        if (visual) {
+          gsap.from(visual, {
+            opacity: 0, x: -40, scale: 0.95,
+            duration: 0.9, ease: 'power3.out',
+            scrollTrigger: {
+              trigger: panel,
+              containerAnimation: scrollTween,
+              start: 'left 75%',
+              toggleActions: 'play none none none',
+            }
+          });
+        }
+        if (text) {
+          gsap.from(text.children, {
+            opacity: 0, y: 40,
+            stagger: 0.12, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: {
+              trigger: panel,
+              containerAnimation: scrollTween,
+              start: 'left 65%',
+              toggleActions: 'play none none none',
+            }
+          });
+        }
+        if (num) {
+          gsap.from(num, {
+            opacity: 0, scale: 0.5,
+            duration: 1, ease: 'power2.out',
+            scrollTrigger: {
+              trigger: panel,
+              containerAnimation: scrollTween,
+              start: 'left 80%',
+              toggleActions: 'play none none none',
+            }
+          });
+        }
       });
     }
 
@@ -2683,6 +2710,41 @@
         const idx = Array.from(siblings).indexOf(el);
         el.dataset.delay = idx * 100;
         observer.observe(el);
+      });
+
+      // Testimonial cards — special stagger
+      ScrollTrigger.create({
+        trigger: '.testimonials-track',
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          anime({
+            targets: '.testimonial-card',
+            opacity: [0, 1],
+            translateY: [60, 0],
+            rotateX: [8, 0],
+            delay: anime.stagger(120),
+            duration: 900,
+            easing: 'easeOutCubic',
+          });
+        }
+      });
+
+      // Footer columns — stagger from left
+      ScrollTrigger.create({
+        trigger: 'footer',
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          anime({
+            targets: '.footer-inner > *',
+            opacity: [0, 1],
+            translateY: [30, 0],
+            delay: anime.stagger(80),
+            duration: 700,
+            easing: 'easeOutCubic',
+          });
+        }
       });
     }
 
