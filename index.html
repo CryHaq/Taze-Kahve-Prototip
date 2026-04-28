@@ -2217,7 +2217,57 @@
         }, '+=0.1');
     });
 
+    /* ═══════════════════════════════════════
+       ADMIN DATA INTEGRATION
+    ═══════════════════════════════════════ */
+    function loadAdminOverrides() {
+      // Override products if admin has custom products
+      try {
+        const adminProducts = JSON.parse(localStorage.getItem('kaphi-admin-products'));
+        if (adminProducts && adminProducts.length > 0) {
+          products.length = 0;
+          adminProducts.forEach(p => products.push(p));
+        }
+      } catch(e) {}
+
+      // Override site content
+      try {
+        const content = JSON.parse(localStorage.getItem('kaphi-admin-content'));
+        if (content) {
+          if (content.heroEyebrow) {
+            const el = document.querySelector('.hero-eyebrow');
+            if (el) el.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = content.heroEyebrow; });
+          }
+          if (content.heroSub) {
+            const el = document.querySelector('.hero-sub');
+            if (el) el.textContent = content.heroSub;
+          }
+          if (content.phone) {
+            document.querySelectorAll('a[href^="tel:"]').forEach(a => {
+              a.href = 'tel:' + content.phone.replace(/\s/g, '');
+              a.textContent = content.phone;
+            });
+          }
+          if (content.email) {
+            document.querySelectorAll('a[href^="mailto:"]').forEach(a => {
+              a.href = 'mailto:' + content.email;
+              a.textContent = content.email;
+            });
+          }
+        }
+      } catch(e) {}
+    }
+
+    function saveOrderToAdmin(orderData) {
+      try {
+        const orders = JSON.parse(localStorage.getItem('kaphi-orders') || '[]');
+        orders.push(orderData);
+        localStorage.setItem('kaphi-orders', JSON.stringify(orders));
+      } catch(e) {}
+    }
+
     function bootApp() {
+      loadAdminOverrides();
       initLenis();
       initThreeHero();
       initHeroAnim();
@@ -3650,6 +3700,19 @@
           anime({ targets: '.co-success h3, .co-success p, .co-order-no',
             opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(100, { start: 300 }), duration: 600, easing: 'easeOutCubic' });
         }, 100);
+        // Save order to admin
+        saveOrderToAdmin({
+          id: orderNo,
+          date: new Date().toISOString().slice(0, 10),
+          customer: localStorage.getItem('kaphi-co-name') || 'Müşteri',
+          phone: localStorage.getItem('kaphi-co-phone') || '',
+          address: localStorage.getItem('kaphi-co-address') || '',
+          items: Object.values(cart).map(v => ({ name: v.item.name, qty: v.qty, price: v.item.price })),
+          shipping: shippingCost,
+          discount: appliedDiscount ? Math.round(cartTotal() * appliedDiscount.percent / 100) : 0,
+          total: getDiscountedTotal() + shippingCost,
+          status: 'waiting',
+        });
         // Clear cart
         cart = {};
         updateCartUI();
@@ -3675,6 +3738,13 @@
           } else if (el) { el.classList.remove('error'); }
         });
         if (!valid) return;
+        // Save customer info for order
+        try {
+          localStorage.setItem('kaphi-co-name', document.getElementById('co-name').value);
+          localStorage.setItem('kaphi-co-phone', document.getElementById('co-phone').value);
+          const city = document.getElementById('co-city')?.value || '';
+          localStorage.setItem('kaphi-co-address', document.getElementById('co-address').value + ', ' + city);
+        } catch(e) {}
       }
       if (nextStep === 4) {
         const fields = ['co-card', 'co-exp', 'co-cvv', 'co-card-name'];

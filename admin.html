@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaphi Kahve — Admin Panel</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg-deep:#060403; --bg-dark:#0c0906; --bg-surface:#151009; --bg-elevated:#1e160d;
+      --gold:#c8956c; --gold-light:#dbb896; --gold-dim:#8a6244;
+      --cream:#f5efe6; --cream-dim:#b8a994;
+      --text-primary:#f5efe6; --text-muted:#7a6b5a;
+      --green:#6b8f4e; --red:#c0392b; --blue:#3498db; --orange:#e67e22;
+      --sidebar-w:240px;
+    }
+    html { font-size:16px; -webkit-font-smoothing:antialiased; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg-deep); color:var(--text-primary); line-height:1.6; min-height:100vh; }
+    ::selection { background:var(--gold); color:var(--bg-deep); }
+
+    /* ══════ LOGIN ══════ */
+    #login-screen {
+      position:fixed; inset:0; z-index:100; background:var(--bg-deep);
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+    }
+    #login-screen.hidden { display:none; }
+    .login-box { max-width:360px; width:90%; text-align:center; }
+    .login-box img { height:40px; margin-bottom:24px; filter:brightness(1.1); }
+    .login-box h2 { font-family:'Instrument Serif',serif; font-size:1.6rem; color:var(--cream); margin-bottom:8px; font-weight:400; }
+    .login-box p { color:var(--text-muted); font-size:0.85rem; margin-bottom:32px; }
+    .login-input {
+      width:100%; padding:14px 18px; background:var(--bg-elevated); border:1px solid rgba(200,149,108,0.12);
+      color:var(--cream); font-family:'DM Sans',sans-serif; font-size:0.9rem; text-align:center;
+      letter-spacing:0.15em; margin-bottom:16px; transition:border-color 0.3s;
+    }
+    .login-input:focus { outline:none; border-color:var(--gold); }
+    .login-input::placeholder { color:var(--text-muted); letter-spacing:0; }
+    .login-btn {
+      width:100%; padding:14px; background:var(--gold); border:none; color:var(--bg-deep);
+      font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600;
+      letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:background 0.3s;
+    }
+    .login-btn:hover { background:var(--gold-light); }
+    .login-error { color:var(--red); font-size:0.8rem; margin-top:12px; min-height:1.2em; }
+
+    /* ══════ LAYOUT ══════ */
+    #app { display:none; }
+    #app.active { display:flex; min-height:100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width:var(--sidebar-w); background:var(--bg-dark); border-right:1px solid rgba(200,149,108,0.06);
+      display:flex; flex-direction:column; position:fixed; top:0; bottom:0; z-index:10;
+    }
+    .sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(200,149,108,0.06); }
+    .sidebar-logo img { height:28px; filter:brightness(1.1); }
+    .sidebar-nav { padding:16px 12px; flex:1; }
+    .sidebar-link {
+      display:flex; align-items:center; gap:12px; padding:11px 14px; color:var(--text-muted);
+      text-decoration:none; font-size:0.85rem; font-weight:500; border-radius:6px;
+      margin-bottom:4px; transition:background 0.2s, color 0.2s;
+    }
+    .sidebar-link:hover { background:rgba(200,149,108,0.06); color:var(--cream); }
+    .sidebar-link.active { background:rgba(200,149,108,0.1); color:var(--gold); }
+    .sidebar-link svg { width:18px; height:18px; flex-shrink:0; }
+    .sidebar-footer { padding:16px 20px; border-top:1px solid rgba(200,149,108,0.06); }
+    .sidebar-footer a {
+      color:var(--text-muted); font-size:0.78rem; text-decoration:none; display:flex; align-items:center; gap:8px;
+    }
+    .sidebar-footer a:hover { color:var(--red); }
+
+    /* Main */
+    .main { flex:1; margin-left:var(--sidebar-w); padding:32px; }
+    .page { display:none; }
+    .page.active { display:block; }
+    .page-title { font-family:'Instrument Serif',serif; font-size:1.8rem; color:var(--cream); margin-bottom:24px; font-weight:400; }
+    .page-title em { font-style:italic; color:var(--gold); }
+
+    /* ══════ CARDS ══════ */
+    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+    .stat-card {
+      background:var(--bg-surface); border:1px solid rgba(200,149,108,0.06); padding:20px;
+      border-radius:8px;
+    }
+    .stat-card-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px; }
+    .stat-card-value { font-family:'Instrument Serif',serif; font-size:2rem; color:var(--cream); }
+    .stat-card-value.gold { color:var(--gold); }
+    .stat-card-change { font-size:0.75rem; margin-top:4px; }
+    .stat-card-change.up { color:var(--green); }
+    .stat-card-change.down { color:var(--red); }
+
+    /* ══════ TABLE ══════ */
+    .panel { background:var(--bg-surface); border:1px solid rgba(200,149,108,0.06); border-radius:8px; margin-bottom:24px; }
+    .panel-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(200,149,108,0.06); }
+    .panel-title { font-size:0.95rem; font-weight:600; color:var(--cream); }
+    .panel-body { padding:0; }
+
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:12px 20px; font-size:0.7rem; font-weight:600; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:0.1em; border-bottom:1px solid rgba(200,149,108,0.06); }
+    td { padding:12px 20px; font-size:0.85rem; color:var(--cream-dim); border-bottom:1px solid rgba(200,149,108,0.03); vertical-align:middle; }
+    tr:hover td { background:rgba(200,149,108,0.02); }
+    td img { width:40px; height:40px; object-fit:cover; border-radius:4px; }
+
+    .badge { display:inline-block; padding:3px 10px; font-size:0.68rem; font-weight:600; letter-spacing:0.05em; border-radius:4px; }
+    .badge-waiting { background:rgba(230,126,34,0.15); color:var(--orange); }
+    .badge-preparing { background:rgba(52,152,219,0.15); color:var(--blue); }
+    .badge-shipping { background:rgba(200,149,108,0.15); color:var(--gold); }
+    .badge-delivered { background:rgba(107,143,78,0.15); color:var(--green); }
+    .badge-active { background:rgba(107,143,78,0.15); color:var(--green); }
+
+    /* ══════ BUTTONS ══════ */
+    .btn {
+      display:inline-flex; align-items:center; gap:6px; padding:9px 18px;
+      font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:600;
+      letter-spacing:0.06em; text-transform:uppercase; border:none; cursor:pointer;
+      border-radius:6px; transition:background 0.2s, transform 0.15s;
+    }
+    .btn:active { transform:scale(0.97); }
+    .btn-gold { background:var(--gold); color:var(--bg-deep); }
+    .btn-gold:hover { background:var(--gold-light); }
+    .btn-ghost { background:transparent; border:1px solid rgba(200,149,108,0.2); color:var(--cream-dim); }
+    .btn-ghost:hover { border-color:var(--gold-dim); color:var(--cream); }
+    .btn-danger { background:rgba(192,57,43,0.15); color:var(--red); }
+    .btn-danger:hover { background:rgba(192,57,43,0.25); }
+    .btn-sm { padding:6px 12px; font-size:0.72rem; }
+
+    /* ══════ MODAL ══════ */
+    .modal-overlay {
+      position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+      display:none; align-items:center; justify-content:center;
+    }
+    .modal-overlay.active { display:flex; }
+    .modal {
+      background:var(--bg-surface); border:1px solid rgba(200,149,108,0.1); border-radius:8px;
+      width:min(560px,94vw); max-height:85vh; overflow-y:auto;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid rgba(200,149,108,0.06); }
+    .modal-header h3 { font-size:1.1rem; color:var(--cream); font-weight:600; }
+    .modal-close { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem; }
+    .modal-close:hover { color:var(--cream); }
+    .modal-body { padding:24px; }
+    .modal-footer { padding:16px 24px; border-top:1px solid rgba(200,149,108,0.06); display:flex; justify-content:flex-end; gap:12px; }
+
+    /* ══════ FORMS ══════ */
+    .form-group { margin-bottom:16px; }
+    .form-label { display:block; font-size:0.72rem; color:var(--gold-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
+    .form-input {
+      width:100%; padding:11px 14px; background:var(--bg-elevated); border:1px solid rgba(200,149,108,0.12);
+      color:var(--cream); font-family:'DM Sans',sans-serif; font-size:0.88rem; border-radius:4px; transition:border-color 0.3s;
+    }
+    .form-input:focus { outline:none; border-color:var(--gold); }
+    .form-row { display:flex; gap:16px; }
+    .form-row > * { flex:1; }
+    select.form-input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a6244' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+    textarea.form-input { resize:vertical; min-height:80px; }
+
+    /* ══════ CHART ══════ */
+    .chart-wrap { padding:20px; }
+    .chart-wrap canvas { width:100%!important; height:200px!important; }
+
+    /* ══════ CONTENT EDITOR ══════ */
+    .content-section { margin-bottom:32px; }
+    .content-section h3 { font-size:1rem; color:var(--gold); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .content-item { background:var(--bg-elevated); border:1px solid rgba(200,149,108,0.06); border-radius:6px; padding:16px; margin-bottom:12px; }
+    .content-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .content-item-title { font-size:0.85rem; font-weight:600; color:var(--cream); }
+
+    /* ══════ RESPONSIVE ══════ */
+    @media (max-width:1024px) {
+      .stat-cards { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:768px) {
+      .sidebar { width:60px; }
+      .sidebar-link span, .sidebar-logo span, .sidebar-footer span { display:none; }
+      .sidebar-link { justify-content:center; padding:12px; }
+      .sidebar-logo { padding:16px; text-align:center; }
+      .main { margin-left:60px; padding:20px; }
+      .stat-cards { grid-template-columns:1fr 1fr; }
+      .form-row { flex-direction:column; }
+      table { font-size:0.8rem; }
+      td, th { padding:10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="login-screen">
+    <div class="login-box">
+      <img src="https://kaphikahve.com/image/catalog/kaphi2.png" alt="Kaphi Kahve">
+      <h2>Admin Panel</h2>
+      <p>Yönetim paneline erişmek için şifrenizi girin.</p>
+      <input class="login-input" id="login-pass" type="password" placeholder="Şifre" autofocus>
+      <button class="login-btn" id="login-btn">Giriş Yap</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="https://kaphikahve.com/image/catalog/kaphi2.png" alt="Kaphi">
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-page="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="sidebar-link" data-page="products">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span>Ürünler</span>
+        </a>
+        <a href="#" class="sidebar-link" data-page="orders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>Siparişler</span>
+        </a>
+        <a href="#" class="sidebar-link" data-page="content">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span>İçerik</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> <span>Siteye Git</span></a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="stat-cards" id="dash-stats"></div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Son 7 Gün Siparişler</span></div>
+          <div class="chart-wrap"><canvas id="chart-orders"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Son Siparişler</span></div>
+          <div class="panel-body"><table><thead><tr><th>Sipariş No</th><th>Tarih</th><th>Müşteri</th><th>Toplam</th><th>Durum</th></tr></thead><tbody id="dash-orders"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="page" id="page-products">
+        <h1 class="page-title">Ürün <em>Yönetimi</em></h1>
+        <div style="margin-bottom:20px"><button class="btn btn-gold" onclick="openProductModal()">+ Yeni Ürün</button></div>
+        <div class="panel">
+          <div class="panel-body"><table><thead><tr><th></th><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Ağırlık</th><th>Durum</th><th></th></tr></thead><tbody id="products-table"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="page" id="page-orders">
+        <h1 class="page-title">Sipariş <em>Takibi</em></h1>
+        <div class="panel">
+          <div class="panel-body"><table><thead><tr><th>Sipariş No</th><th>Tarih</th><th>Müşteri</th><th>Ürünler</th><th>Toplam</th><th>Durum</th><th></th></tr></thead><tbody id="orders-table"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="page" id="page-content">
+        <h1 class="page-title">Site <em>İçerik</em></h1>
+        <div id="content-editor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="product-modal-title">Ürün Ekle</h3><button class="modal-close" onclick="closeProductModal()">✕</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="pm-id">
+        <div class="form-group"><label class="form-label">Ürün Adı</label><input class="form-input" id="pm-name" placeholder="Ürün adı"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Kategori</label>
+            <select class="form-input" id="pm-cat"><option value="Espresso Blend">Espresso Blend</option><option value="Filtre Kahve">Filtre Kahve</option><option value="Türk Kahvesi">Türk Kahvesi</option><option value="Deneme Seti">Deneme Seti</option><option value="Yeşil Kahve">Yeşil Kahve</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Badge</label>
+            <select class="form-input" id="pm-badge"><option value="">Yok</option><option value="new">Yeni</option><option value="best">Çok Satan</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Fiyat (₺)</label><input class="form-input" id="pm-price" type="number" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Ağırlık</label><input class="form-input" id="pm-weight" placeholder="500 g"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Görsel URL</label><input class="form-input" id="pm-img" placeholder="https://..."></div>
+        <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input" id="pm-desc" placeholder="Ürün açıklaması"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Origin</label><input class="form-input" id="pm-origin" placeholder="Brezilya"></div>
+          <div class="form-group"><label class="form-label">Kavurma</label><input class="form-input" id="pm-roast" placeholder="Orta"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeProductModal()">İptal</button>
+        <button class="btn btn-gold" onclick="saveProduct()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal">
+      <div class="modal-header"><h3>Sipariş Detayı</h3><button class="modal-close" onclick="closeOrderModal()">✕</button></div>
+      <div class="modal-body" id="order-detail"></div>
+      <div class="modal-footer" id="order-actions"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════
+       AUTH
+    ═══════════════════════════════════════ */
+    const ADMIN_PASS = 'kaphi2026';
+
+    function initLogin() {
+      if (localStorage.getItem('kaphi-admin-auth') === 'true') { showApp(); return; }
+      document.getElementById('login-btn').addEventListener('click', tryLogin);
+      document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+    }
+    function tryLogin() {
+      const pass = document.getElementById('login-pass').value;
+      if (pass === ADMIN_PASS) {
+        localStorage.setItem('kaphi-admin-auth', 'true');
+        showApp();
+      } else {
+        document.getElementById('login-error').textContent = 'Yanlış şifre';
+        document.getElementById('login-pass').value = '';
+      }
+    }
+    function showApp() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app').classList.add('active');
+      initRouter();
+      loadDashboard();
+    }
+    function logout() {
+      localStorage.removeItem('kaphi-admin-auth');
+      location.reload();
+    }
+
+    /* ═══════════════════════════════════════
+       ROUTER
+    ═══════════════════════════════════════ */
+    function initRouter() {
+      document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const page = link.dataset.page;
+          document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+          document.getElementById('page-' + page).classList.add('active');
+          if (page === 'dashboard') loadDashboard();
+          if (page === 'products') loadProducts();
+          if (page === 'orders') loadOrders();
+          if (page === 'content') loadContent();
+        });
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       DATA HELPERS
+    ═══════════════════════════════════════ */
+    function getProducts() {
+      try { return JSON.parse(localStorage.getItem('kaphi-admin-products')) || []; } catch(e) { return []; }
+    }
+    function saveProducts(arr) {
+      localStorage.setItem('kaphi-admin-products', JSON.stringify(arr));
+    }
+    function getOrders() {
+      try { return JSON.parse(localStorage.getItem('kaphi-orders')) || []; } catch(e) { return []; }
+    }
+    function saveOrders(arr) {
+      localStorage.setItem('kaphi-orders', JSON.stringify(arr));
+    }
+    function getSiteContent() {
+      try { return JSON.parse(localStorage.getItem('kaphi-admin-content')) || {}; } catch(e) { return {}; }
+    }
+    function saveSiteContent(obj) {
+      localStorage.setItem('kaphi-admin-content', JSON.stringify(obj));
+    }
+
+    // Seed demo orders if none exist
+    function seedOrders() {
+      if (getOrders().length > 0) return;
+      const demoOrders = [
+        { id:'KPH-A1B2C3', date:'2026-04-27', customer:'Elif Yılmaz', phone:'0532 111 2233', address:'Kadıköy, İstanbul', items:[{name:'Horeca Blend 1000gr',qty:2,price:1800}], shipping:0, discount:0, total:3600, status:'delivered' },
+        { id:'KPH-D4E5F6', date:'2026-04-27', customer:'Murat Kaya', phone:'0542 333 4455', address:'Çankaya, Ankara', items:[{name:'5\'li Deneme Seti',qty:1,price:1100},{name:'Türk Kahvesi 500gr',qty:1,price:600}], shipping:29.9, discount:0, total:1729.9, status:'shipping' },
+        { id:'KPH-G7H8I9', date:'2026-04-28', customer:'Zeynep Demir', phone:'0555 666 7788', address:'Alsancak, İzmir', items:[{name:'Special Blend 1000gr',qty:1,price:1500}], shipping:0, discount:225, total:1275, status:'preparing' },
+        { id:'KPH-J1K2L3', date:'2026-04-28', customer:'Ahmet Çelik', phone:'0533 999 0011', address:'Nilüfer, Bursa', items:[{name:'Kenya+Etiyopya Avantaj',qty:2,price:990}], shipping:49.9, discount:0, total:2029.9, status:'waiting' },
+        { id:'KPH-M4N5O6', date:'2026-04-28', customer:'Ayşe Koç', phone:'0544 222 3344', address:'Muratpaşa, Antalya', items:[{name:'Mega Deneme Seti',qty:1,price:1900},{name:'Warehouse Blend 1000gr',qty:1,price:1800}], shipping:0, discount:555, total:3145, status:'waiting' },
+      ];
+      saveOrders(demoOrders);
+    }
+
+    /* ═══════════════════════════════════════
+       DASHBOARD
+    ═══════════════════════════════════════ */
+    function loadDashboard() {
+      seedOrders();
+      const orders = getOrders();
+      const products = getProducts();
+      const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
+      const avgOrder = orders.length ? Math.round(totalRevenue / orders.length) : 0;
+
+      document.getElementById('dash-stats').innerHTML = `
+        <div class="stat-card"><div class="stat-card-label">Toplam Sipariş</div><div class="stat-card-value">${orders.length}</div><div class="stat-card-change up">↑ Bu hafta aktif</div></div>
+        <div class="stat-card"><div class="stat-card-label">Toplam Gelir</div><div class="stat-card-value gold">₺${totalRevenue.toLocaleString('tr-TR')}</div></div>
+        <div class="stat-card"><div class="stat-card-label">Ürün Sayısı</div><div class="stat-card-value">${products.length}</div></div>
+        <div class="stat-card"><div class="stat-card-label">Ort. Sepet</div><div class="stat-card-value">₺${avgOrder.toLocaleString('tr-TR')}</div></div>
+      `;
+
+      // Recent orders table
+      const recent = orders.slice(-5).reverse();
+      document.getElementById('dash-orders').innerHTML = recent.map(o => `
+        <tr>
+          <td style="font-weight:500;color:var(--cream)">${o.id}</td>
+          <td>${o.date}</td>
+          <td>${o.customer}</td>
+          <td style="color:var(--gold)">₺${o.total.toLocaleString('tr-TR')}</td>
+          <td>${statusBadge(o.status)}</td>
+        </tr>
+      `).join('');
+
+      // Chart
+      drawChart(orders);
+    }
+
+    function statusBadge(s) {
+      const map = { waiting:'Beklemede|waiting', preparing:'Hazırlanıyor|preparing', shipping:'Kargoda|shipping', delivered:'Teslim Edildi|delivered' };
+      const [label, cls] = (map[s] || 'Bilinmiyor|waiting').split('|');
+      return `<span class="badge badge-${cls}">${label}</span>`;
+    }
+
+    function drawChart(orders) {
+      const canvas = document.getElementById('chart-orders');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth * 2;
+      canvas.height = 400;
+      ctx.scale(2, 2);
+      const w = canvas.offsetWidth, h = 200;
+
+      // Last 7 days
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+      const counts = days.map(d => orders.filter(o => o.date === d).length);
+      const maxCount = Math.max(...counts, 1);
+
+      ctx.clearRect(0, 0, w, h);
+      const barW = (w - 60) / 7;
+      const maxH = h - 50;
+
+      days.forEach((d, i) => {
+        const x = 30 + i * barW + barW * 0.2;
+        const bw = barW * 0.6;
+        const bh = (counts[i] / maxCount) * maxH;
+
+        // Bar
+        ctx.fillStyle = 'rgba(200,149,108,0.3)';
+        ctx.beginPath();
+        ctx.roundRect(x, h - 30 - bh, bw, bh, 4);
+        ctx.fill();
+
+        // Value
+        ctx.fillStyle = '#c8956c';
+        ctx.font = '500 11px DM Sans';
+        ctx.textAlign = 'center';
+        if (counts[i] > 0) ctx.fillText(counts[i], x + bw/2, h - 34 - bh);
+
+        // Label
+        ctx.fillStyle = '#7a6b5a';
+        ctx.font = '10px DM Sans';
+        ctx.fillText(d.slice(5), x + bw/2, h - 12);
+      });
+    }
+
+    /* ═══════════════════════════════════════
+       PRODUCTS
+    ═══════════════════════════════════════ */
+    function loadProducts() {
+      const products = getProducts();
+      document.getElementById('products-table').innerHTML = products.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Henüz ürün eklenmemiş. Ana sitedeki ürünler varsayılan olarak kullanılır.</td></tr>'
+        : products.map((p, i) => `
+        <tr>
+          <td><img src="${p.img}" alt="${p.name}"></td>
+          <td style="font-weight:500;color:var(--cream)">${p.name}</td>
+          <td>${p.cat}</td>
+          <td style="color:var(--gold)">₺${p.price}</td>
+          <td>${p.weight}</td>
+          <td><span class="badge badge-active">Aktif</span></td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="editProduct(${i})">Düzenle</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${i})">Sil</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openProductModal(data) {
+      document.getElementById('product-modal').classList.add('active');
+      document.getElementById('product-modal-title').textContent = data ? 'Ürün Düzenle' : 'Yeni Ürün';
+      if (data) {
+        document.getElementById('pm-id').value = data.id || '';
+        document.getElementById('pm-name').value = data.name || '';
+        document.getElementById('pm-cat').value = data.cat || '';
+        document.getElementById('pm-badge').value = data.badge || '';
+        document.getElementById('pm-price').value = data.price || '';
+        document.getElementById('pm-weight').value = data.weight || '';
+        document.getElementById('pm-img').value = data.img || '';
+        document.getElementById('pm-desc').value = data.desc || '';
+        document.getElementById('pm-origin').value = data.origin || '';
+        document.getElementById('pm-roast').value = data.roast || '';
+      } else {
+        document.querySelectorAll('#product-modal .form-input').forEach(el => {
+          if (el.tagName === 'SELECT') el.selectedIndex = 0;
+          else el.value = '';
+        });
+        document.getElementById('pm-id').value = 'p-' + Date.now().toString(36);
+      }
+    }
+    function closeProductModal() { document.getElementById('product-modal').classList.remove('active'); }
+
+    function saveProduct() {
+      const p = {
+        id: document.getElementById('pm-id').value,
+        name: document.getElementById('pm-name').value.trim(),
+        cat: document.getElementById('pm-cat').value,
+        badge: document.getElementById('pm-badge').value || null,
+        price: parseInt(document.getElementById('pm-price').value) || 0,
+        weight: document.getElementById('pm-weight').value.trim(),
+        img: document.getElementById('pm-img').value.trim(),
+        desc: document.getElementById('pm-desc').value.trim(),
+        origin: document.getElementById('pm-origin').value.trim(),
+        roast: document.getElementById('pm-roast').value.trim(),
+      };
+      if (!p.name || !p.price) { alert('Ürün adı ve fiyat gerekli'); return; }
+
+      const products = getProducts();
+      const idx = products.findIndex(x => x.id === p.id);
+      if (idx >= 0) products[idx] = p;
+      else products.push(p);
+      saveProducts(products);
+      closeProductModal();
+      loadProducts();
+    }
+
+    function editProduct(i) {
+      const products = getProducts();
+      openProductModal(products[i]);
+    }
+    function deleteProduct(i) {
+      if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+      const products = getProducts();
+      products.splice(i, 1);
+      saveProducts(products);
+      loadProducts();
+    }
+
+    /* ═══════════════════════════════════════
+       ORDERS
+    ═══════════════════════════════════════ */
+    function loadOrders() {
+      seedOrders();
+      const orders = getOrders().slice().reverse();
+      document.getElementById('orders-table').innerHTML = orders.map((o, i) => `
+        <tr>
+          <td style="font-weight:500;color:var(--cream)">${o.id}</td>
+          <td>${o.date}</td>
+          <td>${o.customer}</td>
+          <td style="font-size:0.78rem">${o.items.map(it => it.name).join(', ')}</td>
+          <td style="color:var(--gold)">₺${o.total.toLocaleString('tr-TR')}</td>
+          <td>${statusBadge(o.status)}</td>
+          <td><button class="btn btn-ghost btn-sm" onclick="openOrderDetail('${o.id}')">Detay</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function openOrderDetail(id) {
+      const orders = getOrders();
+      const o = orders.find(x => x.id === id);
+      if (!o) return;
+      document.getElementById('order-detail').innerHTML = `
+        <div style="margin-bottom:16px"><strong style="color:var(--cream)">Sipariş:</strong> ${o.id}<br><strong style="color:var(--cream)">Tarih:</strong> ${o.date}</div>
+        <div style="margin-bottom:16px"><strong style="color:var(--cream)">Müşteri:</strong> ${o.customer}<br><strong style="color:var(--cream)">Telefon:</strong> ${o.phone || '—'}<br><strong style="color:var(--cream)">Adres:</strong> ${o.address || '—'}</div>
+        <table style="margin-bottom:16px"><thead><tr><th>Ürün</th><th>Adet</th><th>Fiyat</th></tr></thead><tbody>
+        ${o.items.map(it => `<tr><td>${it.name}</td><td>${it.qty}</td><td style="color:var(--gold)">₺${it.price * it.qty}</td></tr>`).join('')}
+        </tbody></table>
+        <div style="border-top:1px solid rgba(200,149,108,0.06);padding-top:12px">
+          ${o.discount > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span style="color:var(--text-muted)">İndirim</span><span style="color:var(--green)">-₺${o.discount}</span></div>` : ''}
+          ${o.shipping > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span style="color:var(--text-muted)">Kargo</span><span>₺${o.shipping}</span></div>` : ''}
+          <div style="display:flex;justify-content:space-between;font-size:1.1rem;font-family:'Instrument Serif',serif"><span>Toplam</span><span style="color:var(--gold)">₺${o.total.toLocaleString('tr-TR')}</span></div>
+        </div>
+      `;
+      const statuses = ['waiting','preparing','shipping','delivered'];
+      const nextIdx = Math.min(statuses.indexOf(o.status) + 1, statuses.length - 1);
+      const nextLabel = {preparing:'Hazırlanıyor',shipping:'Kargoya Ver',delivered:'Teslim Edildi'}[statuses[nextIdx]] || '';
+      document.getElementById('order-actions').innerHTML = o.status === 'delivered'
+        ? '<button class="btn btn-ghost" onclick="closeOrderModal()">Kapat</button>'
+        : `<button class="btn btn-ghost" onclick="closeOrderModal()">Kapat</button><button class="btn btn-gold" onclick="updateOrderStatus('${o.id}','${statuses[nextIdx]}')">${nextLabel} Olarak Güncelle</button>`;
+      document.getElementById('order-modal').classList.add('active');
+    }
+    function closeOrderModal() { document.getElementById('order-modal').classList.remove('active'); }
+
+    function updateOrderStatus(id, newStatus) {
+      const orders = getOrders();
+      const o = orders.find(x => x.id === id);
+      if (o) o.status = newStatus;
+      saveOrders(orders);
+      closeOrderModal();
+      loadOrders();
+      loadDashboard();
+    }
+
+    /* ═══════════════════════════════════════
+       CONTENT EDITOR
+    ═══════════════════════════════════════ */
+    function loadContent() {
+      const c = getSiteContent();
+      document.getElementById('content-editor').innerHTML = `
+        <div class="content-section">
+          <h3>🎯 Hero Bölümü</h3>
+          <div class="content-item">
+            <div class="form-group"><label class="form-label">Eyebrow Metin</label><input class="form-input" id="c-hero-eyebrow" value="${c.heroEyebrow || 'Çekirdekten Fincana · Est. 1995'}"></div>
+            <div class="form-group"><label class="form-label">Ana Başlık</label><input class="form-input" id="c-hero-title" value="${c.heroTitle || 'Kahvenin yolculuğu'}"></div>
+            <div class="form-group"><label class="form-label">Alt Metin</label><textarea class="form-input" id="c-hero-sub">${c.heroSub || 'Tek bir kaydırma hareketiyle, çekirdeğin topraktan fincanınıza uzanan yolculuğuna tanık olun.'}</textarea></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>💬 Müşteri Yorumları</h3>
+          <div id="c-testimonials"></div>
+          <button class="btn btn-ghost" onclick="addTestimonial()" style="margin-top:8px">+ Yorum Ekle</button>
+        </div>
+
+        <div class="content-section">
+          <h3>❓ SSS (FAQ)</h3>
+          <div id="c-faqs"></div>
+          <button class="btn btn-ghost" onclick="addFaq()" style="margin-top:8px">+ Soru Ekle</button>
+        </div>
+
+        <div class="content-section">
+          <h3>📞 İletişim Bilgileri</h3>
+          <div class="content-item">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Telefon</label><input class="form-input" id="c-phone" value="${c.phone || '0216 412 13 10'}"></div>
+              <div class="form-group"><label class="form-label">E-posta</label><input class="form-input" id="c-email" value="${c.email || 'info@kaphikahve.com'}"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Adres</label><input class="form-input" id="c-address" value="${c.address || 'İstanbul, Türkiye'}"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-gold" onclick="saveContent()" style="margin-top:8px">Tüm İçeriği Kaydet</button>
+      `;
+
+      // Testimonials
+      const testimonials = c.testimonials || [
+        { name:'Elif Yılmaz', role:'Barista, İstanbul', quote:'Yıllardır farklı markalar denedim, Kaphi ile tanıştıktan sonra başka kahve alamaz oldum.' },
+        { name:'Murat Kaya', role:'Kafe Sahibi, Ankara', quote:'Kafemizde Kaphi\'nin Horeca Espresso Blend\'ini kullanıyoruz. Müşterilerimiz farkı hemen fark etti.' },
+        { name:'Zeynep Demir', role:'Kahve Tutkunu, İzmir', quote:'Kavurma tarihini paketin üzerinde görebilmek büyük güven veriyor.' },
+      ];
+      renderTestimonials(testimonials);
+
+      const faqs = c.faqs || [
+        { q:'Kahveleriniz ne kadar taze?', a:'Tüm kahvelerimiz sipariş bazlı kavrulur ve 48 saat içinde kargoya verilir.' },
+        { q:'Kargo süresi ne kadar?', a:'İstanbul içi aynı gün/ertesi gün. Türkiye geneli 1-3 iş günü.' },
+        { q:'Hangi ödeme yöntemlerini kabul ediyorsunuz?', a:'Kredi kartı, banka kartı, havale/EFT ve kapıda ödeme.' },
+      ];
+      renderFaqs(faqs);
+    }
+
+    function renderTestimonials(list) {
+      document.getElementById('c-testimonials').innerHTML = list.map((t, i) => `
+        <div class="content-item">
+          <div class="content-item-header"><span class="content-item-title">Yorum ${i+1}</span><button class="btn btn-danger btn-sm" onclick="removeTestimonial(${i})">Sil</button></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">İsim</label><input class="form-input ct-name" value="${t.name}"></div>
+            <div class="form-group"><label class="form-label">Rol</label><input class="form-input ct-role" value="${t.role}"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Yorum</label><textarea class="form-input ct-quote">${t.quote}</textarea></div>
+        </div>
+      `).join('');
+    }
+    function addTestimonial() {
+      const list = collectTestimonials();
+      list.push({ name:'', role:'', quote:'' });
+      renderTestimonials(list);
+    }
+    function removeTestimonial(i) {
+      const list = collectTestimonials();
+      list.splice(i, 1);
+      renderTestimonials(list);
+    }
+    function collectTestimonials() {
+      const items = document.querySelectorAll('#c-testimonials .content-item');
+      return Array.from(items).map(item => ({
+        name: item.querySelector('.ct-name').value,
+        role: item.querySelector('.ct-role').value,
+        quote: item.querySelector('.ct-quote').value,
+      }));
+    }
+
+    function renderFaqs(list) {
+      document.getElementById('c-faqs').innerHTML = list.map((f, i) => `
+        <div class="content-item">
+          <div class="content-item-header"><span class="content-item-title">Soru ${i+1}</span><button class="btn btn-danger btn-sm" onclick="removeFaq(${i})">Sil</button></div>
+          <div class="form-group"><label class="form-label">Soru</label><input class="form-input cf-q" value="${f.q}"></div>
+          <div class="form-group"><label class="form-label">Cevap</label><textarea class="form-input cf-a">${f.a}</textarea></div>
+        </div>
+      `).join('');
+    }
+    function addFaq() {
+      const list = collectFaqs();
+      list.push({ q:'', a:'' });
+      renderFaqs(list);
+    }
+    function removeFaq(i) {
+      const list = collectFaqs();
+      list.splice(i, 1);
+      renderFaqs(list);
+    }
+    function collectFaqs() {
+      const items = document.querySelectorAll('#c-faqs .content-item');
+      return Array.from(items).map(item => ({
+        q: item.querySelector('.cf-q').value,
+        a: item.querySelector('.cf-a').value,
+      }));
+    }
+
+    function saveContent() {
+      const content = {
+        heroEyebrow: document.getElementById('c-hero-eyebrow').value,
+        heroTitle: document.getElementById('c-hero-title').value,
+        heroSub: document.getElementById('c-hero-sub').value,
+        testimonials: collectTestimonials(),
+        faqs: collectFaqs(),
+        phone: document.getElementById('c-phone').value,
+        email: document.getElementById('c-email').value,
+        address: document.getElementById('c-address').value,
+      };
+      saveSiteContent(content);
+      alert('İçerik kaydedildi! Ana site bir sonraki yüklemede güncellenecek.');
+    }
+
+    /* ═══════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', initLogin);
+  </script>
+</body>
+</html>
